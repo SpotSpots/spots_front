@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'InfoScreen.dart';
+import 'ResultPage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         //primarySwatch: Colors.deepPurple,
         useMaterial3: true,
       ),
-      home: InfoScreen(),
+      home: ResultPage(title: 'SPOTS'),
     );
   }
 }
