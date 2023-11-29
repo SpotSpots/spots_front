@@ -4,51 +4,99 @@ class InfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // AppBar 설정 (뒤로가기, 하트, 설정 버튼)
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {},
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.favorite_border),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () {},
-          ),
-        ],
-      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Image(
-                image: AssetImage(
-                    'assets/cafe1.png'
+            Stack(
+              children: [
+                // 큰 이미지
+                Image.asset('assets/cafe1.png', width: double.infinity, height: 200, fit: BoxFit.cover),
+
+                // 상단 버튼들
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
+                      onPressed: () {},
+                      iconSize: 18,
+                    ),
+                  ),
                 ),
-                width: 380
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.favorite_border, color: Colors.red),
+                          onPressed: () {},
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.more_horiz, color: Colors.grey),
+                          onPressed: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
+
             // 상점 정보 상단 섹션
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'KRISP Fresh Living',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'KRISP Fresh Living',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.yellow),
+                          Text('4.2'),
+                        ],
+                      ),
+                    ],
                   ),
                   Row(
                     children: [
-                      Icon(Icons.star, color: Colors.yellow),
-                      Text('4.2'),
+                      Icon(Icons.place, color: Colors.black), // GPS 모양 이모티콘
+                      SizedBox(width: 8), // 이모티콘과 텍스트 사이의 간격 조절
+                      Text('2.4 mi // Irvine'),
                     ],
                   ),
-                  Text('2.4 mi // Irvine'),
                   Text('Open until 7pm // Cafe, Coffee & Tea'),
+                  SizedBox(height: 20),
                   Row(
                     children: [
                       Icon(Icons.warning, color: Colors.yellow),
@@ -72,24 +120,30 @@ class InfoScreen extends StatelessWidget {
                     'Recently Checked In',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-
+                  SizedBox(height: 20),
 
                   // Profile 리스트
                   Row(
                     children: [
-                      buildProfile('Name 1', 'now'),
-                      buildProfile('Name 2', '1 hr ago'),
-                      buildProfile('Name 3', '2 hr ago'),
-                      buildProfile('Name 4', '3 hr ago'),
-                      buildProfile('Name 5', '4 hr ago'),
+                      buildProfile('alexiamae', 'now'),
+                      buildProfile('liamthom..', '1 hr ago'),
+                      buildProfile('emilygrace', '4 hr ago'),
+                      buildProfile('lexijade', '1 day ago'),
+                      buildProfile('eljjaaaa', '5 day ago'),
                     ],
                   ),
+
+                  SizedBox(height: 20),
 
                   // Check In 버튼
                   ElevatedButton(
                     onPressed: () {},
                     child: Text('Check In'),
-                  ),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(100, 70),
+                    ),
+                  )
+,
                 ],
               ),
             ),
@@ -114,6 +168,8 @@ class InfoScreen extends StatelessWidget {
 
       // Bottom Navigation
       bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.blue,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
