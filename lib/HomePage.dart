@@ -74,12 +74,6 @@ class _HomePageState extends State<HomePage> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     onPressed: () {
-                      // 검색 화면 으로 연결하기
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ResultPage(title: "결과"),
-                        ),
-                      );
                       print('검색창 누름');
                     },
                     child: const Row(
