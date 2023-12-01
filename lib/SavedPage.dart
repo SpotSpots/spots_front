@@ -147,8 +147,7 @@ class _SavedPageState extends State<SavedPage> {
             ),
           ),
           SizedBox(height: 10,),
-          SizedBox(
-            height: 300,
+          Flexible(
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
