@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'RegisterPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -24,6 +25,7 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
+  bool saving = true;
   final _authentication = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   String email = '';
@@ -31,51 +33,60 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: ListView(
-          children: [
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Email',
+    return ModalProgressHUD(
+      inAsyncCall: saving,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                ),
+                onChanged: (value) {
+                  email = value;
+                },
               ),
-              onChanged: (value) {
-                email = value;
-              },
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            TextFormField(
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
+              const SizedBox(
+                height: 20,
               ),
-              onChanged: (value) {
-                password = value;
-              },
-            ),
-            ElevatedButton(onPressed: () async {
-              try {
-                final currentUser = await _authentication
-                    .signInWithEmailAndPassword(
-                    email: email, password: password);
+              TextFormField(
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                ),
+                onChanged: (value) {
+                  password = value;
+                },
+              ),
+              ElevatedButton(onPressed: () async {
+                try {
+                  setState(() {
+                    saving = true;
+                  });
+                  final currentUser = await _authentication
+                      .signInWithEmailAndPassword(
+                      email: email, password: password);
 
-                if (currentUser.user != null) {
-                  _formKey.currentState!.reset();
+                  if (currentUser.user != null) {
+                    _formKey.currentState!.reset();
+                  }
+                  setState(() {
+                    saving = true;
+                  });
+
+                  if (!mounted) return;
+                  Navigator.popUntil(context, (route) => route.isFirst);
                 }
-
-                if (!mounted) return;
-                Navigator.popUntil(context, (route) => route.isFirst);
-              }
-              catch(e){
-                print(e);
-              }
-            }, child: Text('Enter')),
-          ],
-        )
+                catch(e){
+                  print(e);
+                }
+              }, child: Text('Enter')),
+            ],
+          )
+        ),
       ),
     );
   }
