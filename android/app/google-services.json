@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "816845953314",
+    "project_id": "spotsfront",
+    "storage_bucket": "spotsfront.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:816845953314:android:411d97faf87cd693b32d7b",
+        "android_client_info": {
+          "package_name": "com.example.spotsfront"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxyZm-x5FGfbglc85NkuSHzroatBlw8Bs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
