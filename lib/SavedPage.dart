@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SavedPage extends StatefulWidget {
-  const SavedPage({super.key, required this.title});
-
-  final String title;
+  const SavedPage({Key? key}) : super(key: key);
 
   @override
   State<SavedPage> createState() => _SavedPageState();
