@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'ResultPage.dart';
 
@@ -52,6 +53,7 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.more_horiz),
               onPressed: () {
                 print('더보기 클릭');
+                FirebaseAuth.instance.signOut();
               },
             ),
           ],
