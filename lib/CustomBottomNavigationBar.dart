@@ -40,3 +40,5 @@ class CustomBottomNavigationBar extends StatelessWidget {
     );
   }
 }
+
+// https://codewithandrea.com/articles/bottom-bar-navigation-with-fab/
