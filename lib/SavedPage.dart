@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SavedPage extends StatefulWidget {
-  const SavedPage({super.key, required this.title});
-
-  final String title;
+  const SavedPage({Key? key}) : super(key: key);
 
   @override
   State<SavedPage> createState() => _SavedPageState();
@@ -149,8 +147,7 @@ class _SavedPageState extends State<SavedPage> {
             ),
           ),
           SizedBox(height: 10,),
-          SizedBox(
-            height: 300,
+          Flexible(
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,

@@ -1,0 +1,1 @@
+enum TabItem { home, saved, explore, activity, profile}
