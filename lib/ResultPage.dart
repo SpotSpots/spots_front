@@ -95,17 +95,66 @@ class _ResultPageState extends State<ResultPage> {
                   ],
                 ),
 
-                // 3. 카페 이미지 + 정보 //stack으로 별점, 찜 추가
+                // 3. 카페 이미지 + 정보
                 SizedBox(height: 30,),
                 Container(
                   margin: EdgeInsets.only(bottom: 20.0),
                   child: Column(
                     children: [
-                      const Image(
-                          image: AssetImage(
-                              'assets/cafe1.png'
-                          ),
-                          width: 380
+                      Stack(
+                          children : [
+                            const Image(
+                                image: AssetImage(
+                                    'assets/cafe1.png'
+                                ),
+                                width: 380
+                            ),
+                            Positioned(
+                              bottom: 117,
+                              right: 158,
+                              child: const Image(
+                                  image: AssetImage(
+                                      'assets/starMark.png'
+                                  ),
+                                  width: 380
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 9,
+                              right: 176,
+                              child: const Image(
+                                  image: AssetImage(
+                                      'assets/star.png'
+                                  ),
+                                  width: 380
+                              ),
+                            ),
+                            Positioned(  // 별점 정보
+                              bottom: 176,
+                              left: 25,
+                              child: Text('4.2', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),),
+                            ),
+                            Positioned(
+                              bottom: -5,
+                              left: 160,
+                              child: const Image(
+                                  image: AssetImage(
+                                      'assets/circle.png'
+                                  ),
+                                  width: 380
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 12,
+                              left: 160,
+                              child: const Image(
+                                  image: AssetImage(
+                                      'assets/heart.png'
+                                  ),
+                                  width: 380
+                              ),
+                            ),
+                          ]
                       ),
                       Container(
                         width: 380,
@@ -162,17 +211,67 @@ class _ResultPageState extends State<ResultPage> {
                   ),
                 ),
 
+
                 // 4. 3과 동일하게...
                 SizedBox(height: 10,),
                 Container(
                   margin: EdgeInsets.only(bottom: 20.0),
                   child: Column(
                     children: [
-                      const Image(
-                          image: AssetImage(
-                              'assets/cafe1.png'
-                          ),
-                          width: 380
+                      Stack(
+                          children : [
+                            const Image(
+                                image: AssetImage(
+                                    'assets/cafe1.png'
+                                ),
+                                width: 380
+                            ),
+                            Positioned(
+                              bottom: 117,
+                              right: 158,
+                              child: const Image(
+                                  image: AssetImage(
+                                      'assets/starMark.png'
+                                  ),
+                                  width: 380
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 9,
+                              right: 176,
+                              child: const Image(
+                                  image: AssetImage(
+                                      'assets/star.png'
+                                  ),
+                                  width: 380
+                              ),
+                            ),
+                            Positioned(  // 별점 정보
+                              bottom: 176,
+                              left: 25,
+                              child: Text('4.1', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),),
+                            ),
+                            Positioned(
+                              bottom: -5,
+                              left: 160,
+                              child: const Image(
+                                  image: AssetImage(
+                                      'assets/circle.png'
+                                  ),
+                                  width: 380
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 12,
+                              left: 160,
+                              child: const Image(
+                                  image: AssetImage(
+                                      'assets/heart.png'
+                                  ),
+                                  width: 380
+                              ),
+                            ),
+                          ]
                       ),
                       Container(
                         width: 380,
