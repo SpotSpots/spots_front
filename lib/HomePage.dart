@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'ResultPage.dart';
+import 'SearchPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -52,7 +52,6 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               icon: const Icon(Icons.more_horiz),
               onPressed: () {
-                print('더보기 클릭');
                 FirebaseAuth.instance.signOut();
               },
             ),
@@ -76,7 +75,7 @@ class _HomePageState extends State<HomePage> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     onPressed: () {
-                      print('검색창 누름');
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
                     },
                     child: const Row(
                       children: [

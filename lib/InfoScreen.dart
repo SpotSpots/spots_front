@@ -26,7 +26,9 @@ class InfoScreen extends StatelessWidget {
                     ),
                     child: IconButton(
                       icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                       iconSize: 18,
                     ),
                   ),
