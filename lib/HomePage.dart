@@ -13,6 +13,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String userName = '';
+  String spotName = '';
+  String spotDetail = '';
 
   @override
   void initState(){
@@ -30,6 +32,30 @@ class _HomePageState extends State<HomePage> {
       });
     } catch (error) {
       print('Error : $error');
+    }
+  }
+
+  Future<void> fetchSpotsByCategory(String category) async {
+    final CollectionReference _cafe = FirebaseFirestore.instance.collection('cafe');
+
+    try {
+      QuerySnapshot cafeSnapshot = await _cafe.where('category', isEqualTo: category).get();
+
+      if (cafeSnapshot.docs.isNotEmpty) {
+        // cafeSnapshot.docs에는 category가 'cafe'인 문서들이 들어있습니다.
+        // 여기에서 필요한 작업을 수행하면 됩니다.
+        for (QueryDocumentSnapshot documentSnapshot in cafeSnapshot.docs) {
+          // documentSnapshot을 이용하여 각 문서의 데이터에 접근할 수 있습니다.
+          spotName = documentSnapshot['name'];
+          spotDetail = documentSnapshot['detail'];
+          // 추가로 필요한 작업 수행
+        }
+      } else {
+        // 해당 카테고리의 데이터가 없을 경우 처리
+        print('No cafes found in the selected category');
+      }
+    } catch (error) {
+      print('Error: $error');
     }
   }
 
@@ -241,7 +267,9 @@ class _HomePageState extends State<HomePage> {
                                   padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  fetchSpotsByCategory('cafe');
+                                },
                                 child: const Text('Cafes', style: TextStyle(color: Colors.white),),
                               ),
                               const SizedBox(width: 10),
@@ -251,30 +279,32 @@ class _HomePageState extends State<HomePage> {
                                   padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
-                                onPressed: () {},
-                                child: const Text('Libraries'),
+                                onPressed: () {
+                                  fetchSpotsByCategory('studyspot');
+                                },
+                                child: const Text('Study Spots'),
                               ),
                               const SizedBox(width: 10),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: Size.zero,
-                                  padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                onPressed: () {},
-                                child: const Text('Study Centers'),
-                              ),
-                              const SizedBox(width: 10),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: Size.zero,
-                                  padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                onPressed: () {},
-                                child: const Text('Outdoors'),
-                              ),
-                              const SizedBox(width: 10),
+                              // ElevatedButton(
+                              //   style: ElevatedButton.styleFrom(
+                              //     minimumSize: Size.zero,
+                              //     padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
+                              //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              //   ),
+                              //   onPressed: () {},
+                              //   child: const Text('Study Centers'),
+                              // ),
+                              // const SizedBox(width: 10),
+                              // ElevatedButton(
+                              //   style: ElevatedButton.styleFrom(
+                              //     minimumSize: Size.zero,
+                              //     padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
+                              //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              //   ),
+                              //   onPressed: () {},
+                              //   child: const Text('Outdoors'),
+                              // ),
+                              // const SizedBox(width: 10),
                             ],
                           ),
                         ),
@@ -299,89 +329,99 @@ class _HomePageState extends State<HomePage> {
                                   .docs[index];
                               return GestureDetector(
                                 onTap: () {
+                                  print('카페 이름을 resultPage로 전달하기');
                                 },
                                 child:
-                                Container(
-                                  child: Stack(
-                                    children: [
-                                      // 이미지
-                                      Container(
+                                Stack(
+                                  children: [
+                                    // 이미지
+                                    Container(
+                                      margin: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(20),
+                                          boxShadow: [BoxShadow(
+                                              color: Colors.grey.withOpacity(0.7),
+                                              spreadRadius: 0,
+                                              blurRadius: 5.0,
+                                              offset: Offset(0, 5)
+                                          )
+                                          ],
+                                          image: DecorationImage(
+                                              fit: BoxFit.cover,
+                                              image: NetworkImage(
+                                                  documentSnapshot['image'])
+                                          )
+                                      ),
+                                    ),
+
+                                    // 하트
+                                    Positioned(
+                                      top: 15,
+                                      right: 15,
+                                      child: Container(
+                                        width: 32,
+                                        height: 32,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.white,
+                                        ),
+                                        child: IconButton(
+                                          icon: Icon(Icons.favorite_border, color: Colors.pink),
+                                          onPressed: () {
+                                            print('heart button clicked');
+                                          },
+                                          iconSize: 16,
+                                        ),
+                                      ),
+                                    ),
+
+                                    //하얀색 컨테이너
+                                    Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Container(
+                                        alignment: Alignment.bottomLeft,
+                                        height: 50,
                                         margin: EdgeInsets.all(5),
                                         decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius: BorderRadius.only(
+                                                bottomRight: Radius.circular(20)),
+                                            color: Colors.white,
                                             boxShadow: [BoxShadow(
                                                 color: Colors.grey.withOpacity(0.7),
                                                 spreadRadius: 0,
                                                 blurRadius: 5.0,
                                                 offset: Offset(0, 5)
                                             )
-                                            ],
-                                            image: DecorationImage(
-                                                fit: BoxFit.cover,
-                                                image: NetworkImage(
-                                                    documentSnapshot['image'])
-                                            )
+                                            ]
                                         ),
-                                      ),
-                                      // 하트
-                                      Positioned(
-                                        top: -10,
-                                        child: const Image(
-                                            image: AssetImage(
-                                                'assets/heart.png'
-                                            ),
-                                            width: 380
-                                        ),
-                                      ),
-                                      //하얀색 컨테이너
-                                      Align(
-                                        alignment: Alignment.bottomCenter,
-                                        child: Container(
-                                          alignment: Alignment.bottomLeft,
-                                          height: 50,
-                                          margin: EdgeInsets.all(5),
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.only(
-                                                  bottomRight: Radius.circular(20)),
-                                              color: Colors.white,
-                                              boxShadow: [BoxShadow(
-                                                  color: Colors.grey.withOpacity(0.7),
-                                                  spreadRadius: 0,
-                                                  blurRadius: 5.0,
-                                                  offset: Offset(0, 5)
-                                              )
-                                              ]
-                                          ),
-                                          child: Container( // 이름, 거리
-                                            margin: const EdgeInsets.only(left: 10),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                                              children: [
-                                                Text(
-                                                  documentSnapshot['name'],
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.black,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ),
+                                        child: Container( // 이름, 거리
+                                          margin: const EdgeInsets.only(left: 10),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                                            children: [
+                                              Text(
+                                                documentSnapshot['name'],
+                                                style: const TextStyle(
+                                                  fontSize: 17,
+                                                  color: Colors.black,
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
-                                                const Text(
-                                                  // 위치에 대한 자세한 정보 넣기
-                                                  '4.2km',
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ),
-                                                  maxLines: 1,
-                                                )
-                                              ],
-                                            ),
+                                              ),
+                                              Text(
+                                                documentSnapshot['detail'],
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                                maxLines: 1,
+                                              )
+                                            ],
                                           ),
                                         ),
-                                      )
-                                    ],
-                                  ),
+                                      ),
+                                    )
+                                  ],
                                 ),
                               );
                             },
