@@ -22,12 +22,6 @@ class _SavedPageState extends State<SavedPage> {
         backgroundColor: Colors.transparent, // 고정 색상 지정
         // backgroundColor: Color(0xffE9E9E9),
         title: Text('Saved', style: TextStyle(fontWeight: FontWeight.bold),),
-        // leading: IconButton(
-        //   icon: Icon(Icons.navigate_before, size: 28,),
-        //   onPressed: () {
-        //     print("navigage_before icon clicked");
-        //   },
-        // ),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(20.0),
           child: Container(
@@ -183,6 +177,7 @@ Widget buildCard(String category, String name) {
                   icon: Icon(Icons.favorite, color: Colors.pink),
                   onPressed: () {
                     print('heart button clicked');
+                    removeFromFavorites(category, name);
                   },
                   iconSize: 16,
                 ),
@@ -197,4 +192,35 @@ Widget buildCard(String category, String name) {
       ],
     ),
   );
+}
+
+Future<void> removeFromFavorites(String category, String name) async {
+  print('removeFromFavorites function called');
+  try {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    print(uid);
+    QuerySnapshot userFavoritesSnapshot = await FirebaseFirestore.instance
+        .collection('user')
+        .doc(uid)
+        .collection('userFavorite')
+        .where('category', isEqualTo: category)
+        .where('name', isEqualTo: name)
+        .get();
+
+    if (userFavoritesSnapshot.docs.isNotEmpty) {
+      print("in delete");
+      String docId = userFavoritesSnapshot.docs.first.id;
+      print(docId);
+      await FirebaseFirestore.instance
+          .collection('user')
+          .doc(uid)
+          .collection('userFavorite')
+          .doc(docId)
+          .delete();
+    } else {
+      print('No document found for deletion');
+    }
+  } catch (e) {
+    print('Error removing from favorites: $e');
+  }
 }
