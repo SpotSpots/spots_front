@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:spotsfront/HomePage.dart';
-import 'package:spotsfront/SavedPage.dart';
+import 'HomePage.dart';
+import 'SavedPage.dart';
 import 'TabItem.dart';
 import 'CustomBottomNavigationBar.dart';
+import 'ExploreButton.dart';
 
 Map<TabItem, Widget> tabPages = {
   TabItem.home: const HomePage(),
   TabItem.saved: const SavedPage(),
-  // TabItem.explore: const ExplorePage(),
 };
 
 class TabControlPage extends StatefulWidget {
@@ -49,6 +49,8 @@ class _TabControlPageState extends State<TabControlPage> {
         currentTab: _currentTab,
         onSelectTab: _selectTab,
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: ExploreButton(),
     );
   }
 
