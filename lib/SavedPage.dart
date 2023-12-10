@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SavedPage extends StatefulWidget {
@@ -9,35 +11,24 @@ class SavedPage extends StatefulWidget {
 
 class _SavedPageState extends State<SavedPage> {
 
+  String uid = FirebaseAuth.instance.currentUser!.uid;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFD5EAF7),
+      backgroundColor: Color(0xffE9E9E9),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Color(0xFFD5EAF7),
+        backgroundColor: Colors.transparent, // 고정 색상 지정
+        // backgroundColor: Color(0xffE9E9E9),
         title: Text('Saved', style: TextStyle(fontWeight: FontWeight.bold),),
-        leading: IconButton(
-          icon: Icon(Icons.navigate_before, size: 28,),
-          onPressed: () {
-            print("navigage_before icon clicked");
-          },
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.more_horiz),
-            onPressed: () {
-              print("more_horiz icon clicked");
-            },
-          ),
-        ],
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(20.0),
           child: Container(
             //padding: EdgeInsets.all(8.0),
             alignment: Alignment.center,
             child: Text(
-              'drag and drop to groups',
+              'See what\'s your favorite spots!',
               style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
             ),
           ),
@@ -47,182 +38,189 @@ class _SavedPageState extends State<SavedPage> {
 
       body: Column(
         children: [
-
-          // 1. Collection horizontal view
+          // 1. Cafe Spots
           const SizedBox(height: 20,),
           const Align(
             alignment: Alignment.centerLeft,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Collections',
+                'Cafe Spots',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
           ),
           SizedBox(height: 10,),
-          SizedBox(
-            height: 200,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal, // 가로로 스크롤 해서 collections 확인
-              itemCount: 4,
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return Container(
-                    width: 120,
-                    height: 150,
-                    margin: EdgeInsets.only(right: 8),
-                    child: Column(
-                      children: [
-                        Card(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: Container(
-                              width: 120,
-                              height: 120,
-                              child: const Center(
-                                child: Text(
-                                  '+',
-                                  style: TextStyle(
-                                    fontSize: 40,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                } else {
-                  // Regular treatment for the other containers
-                  return Container(
-                    width: 120,
-                    height: 150,
-                    margin: EdgeInsets.only(right: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Card(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: Container(
-                              width: 120,
-                              height: 120,
-                              child: Image.asset(
-                                'assets/cafe1.png',
-                                fit: BoxFit.fitHeight,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const Text(
-                          'Fev cafes in OC',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        const Text(
-                          'saved',
-                          style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
-            ),
-            ),
 
-          // 2. Saved Spots (46) view
+
+          FutureBuilder<QuerySnapshot>(
+            future: FirebaseFirestore.instance.collection('user').doc(uid).collection('userFavorite').get(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                // cafe만 가져오기
+                final cafeCards = snapshot.data!.docs
+                    .where((document) => document['category'] == 'cafe')
+                    .map<Widget>((document) {
+                  final name = document['name'];
+                  return buildCard('Cafe Spots', name);
+                }).toList();
+
+                return Column(
+                  children: [
+                    SizedBox(
+                      height: 200,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        children: cafeCards,
+                      ),
+                    ),
+                  ],
+                );
+              }
+            },
+          ),
+
+          const SizedBox(height: 20,),
           const Align(
             alignment: Alignment.centerLeft,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Saved Spots ()',
+                'Study Spots',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
           ),
           SizedBox(height: 10,),
-          Flexible(
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                //crossAxisSpacing: 6.0, // 아이템 간의 가로 간격
-                mainAxisSpacing: 8.0, // 아이템 간의 세로 간격
-              ),
-              itemCount: 6,
-              itemBuilder: (context, index) {
-                return Container(
-                  width: 150,
-                  height: 210,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Stack(
-                        children: [
-                          Card(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16.0),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2.0,
-                                ),
-                              ),
-                              width: 150,
-                              height: 150,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(16.0),
-                                child: Image.asset(
-                                  'assets/cafe1.png',
-                                  fit: BoxFit.fitHeight,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 10,
-                            right: 10,
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                              ),
-                              child: IconButton(
-                                icon: Icon(Icons.favorite, color: Colors.pink),
-                                onPressed: () {
-                                  print('heart button clicked');
-                                },
-                                iconSize: 16,
-                              ),
-                            ),
-                          ),
-                        ],
+          FutureBuilder<QuerySnapshot>(
+            future: FirebaseFirestore.instance.collection('user').doc(uid).collection('userFavorite').get(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                // Firebase에서 데이터 가져오기 성공
+                final studyCards = snapshot.data!.docs
+                    .where((document) => document['category'] == 'studyspot')
+                    .map<Widget>((document) {
+                  final name = document['name'];
+                  return buildCard('Study Spots', name);
+                }).toList();
+
+                return Column(
+                  children: [
+                    SizedBox(
+                      height: 200,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        children: studyCards,
                       ),
-                      const Text(
-                        'Fev cafes in OC',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const Text(
-                        'Costa Mesa, CA',
-                        style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
-              },
-            ),
+              }
+            },
           ),
-
-
         ],
       ),
     );
+  }
+}
+
+Widget buildCard(String category, String name) {
+  return Container(
+    width: 150,
+    height: 210,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Stack(
+          children: [
+            Card(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2.0,
+                  ),
+                ),
+                width: 150,
+                height: 150,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16.0),
+                  child: Image.asset(
+                    'assets/cafe1.png',
+                    fit: BoxFit.fitHeight,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.favorite, color: Colors.pink),
+                  onPressed: () {
+                    print('heart button clicked');
+                    removeFromFavorites(category, name);
+                  },
+                  iconSize: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+        Text(
+          name,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<void> removeFromFavorites(String category, String name) async {
+  print('removeFromFavorites function called');
+  try {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    print(uid);
+    QuerySnapshot userFavoritesSnapshot = await FirebaseFirestore.instance
+        .collection('user')
+        .doc(uid)
+        .collection('userFavorite')
+        .where('category', isEqualTo: category)
+        .where('name', isEqualTo: name)
+        .get();
+
+    if (userFavoritesSnapshot.docs.isNotEmpty) {
+      print("in delete");
+      String docId = userFavoritesSnapshot.docs.first.id;
+      print(docId);
+      await FirebaseFirestore.instance
+          .collection('user')
+          .doc(uid)
+          .collection('userFavorite')
+          .doc(docId)
+          .delete();
+    } else {
+      print('No document found for deletion');
+    }
+  } catch (e) {
+    print('Error removing from favorites: $e');
   }
 }
