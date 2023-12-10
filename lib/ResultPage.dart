@@ -215,23 +215,19 @@ class _ResultPageState extends State<ResultPage> {
                                             child: Text(cafes[i].rating!, style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),),
                                           ),
                                           Positioned( // 찜 기능 : 나중에 추가
-                                            bottom: -5,
-                                            left: 160,
-                                            child: const Image(
-                                                image: AssetImage(
-                                                    'assets/circle.png'
-                                                ),
-                                                width: 380
-                                            ),
-                                          ),
-                                          Positioned(
-                                            bottom: 12,
-                                            left: 160,
-                                            child: const Image(
-                                                image: AssetImage(
-                                                    'assets/heart.png'
-                                                ),
-                                                width: 380
+                                            bottom: 166,
+                                            left: 335,
+                                            child: Container(
+                                              width: 36,
+                                              height: 36,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Colors.white,
+                                              ),
+                                              child: IconButton(
+                                                icon: Icon(Icons.favorite_border, color: Colors.red, size: 20,),
+                                                onPressed: () {},
+                                              ),
                                             ),
                                           ),
                                         ]
