@@ -10,7 +10,6 @@ class SavedPage extends StatefulWidget {
 }
 
 class _SavedPageState extends State<SavedPage> {
-
   String uid = FirebaseAuth.instance.currentUser!.uid;
 
   @override
@@ -19,13 +18,11 @@ class _SavedPageState extends State<SavedPage> {
       backgroundColor: Color(0xffE9E9E9),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.transparent, // 고정 색상 지정
-        // backgroundColor: Color(0xffE9E9E9),
-        title: Text('Saved', style: TextStyle(fontWeight: FontWeight.bold),),
+        backgroundColor: Colors.transparent,
+        title: Text('Saved', style: TextStyle(fontWeight: FontWeight.bold)),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(20.0),
           child: Container(
-            //padding: EdgeInsets.all(8.0),
             alignment: Alignment.center,
             child: Text(
               'See what\'s your favorite spots!',
@@ -34,11 +31,8 @@ class _SavedPageState extends State<SavedPage> {
           ),
         ),
       ),
-
-
       body: Column(
         children: [
-          // 1. Cafe Spots
           const SizedBox(height: 20,),
           const Align(
             alignment: Alignment.centerLeft,
@@ -51,39 +45,63 @@ class _SavedPageState extends State<SavedPage> {
             ),
           ),
           SizedBox(height: 10,),
-
-
-          FutureBuilder<QuerySnapshot>(
-            future: FirebaseFirestore.instance.collection('user').doc(uid).collection('userFavorite').get(),
+          FutureBuilder<DocumentSnapshot>(
+            future: FirebaseFirestore.instance.collection('user').doc(uid).get(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
-                // cafe만 가져오기
-                final cafeCards = snapshot.data!.docs
-                    .where((document) => document['category'] == 'cafe')
-                    .map<Widget>((document) {
-                  final name = document['name'];
-                  return buildCard('Cafe Spots', name);
-                }).toList();
+                final userDocument = snapshot.data;
+                if (userDocument != null) {
+                  final userFavoriteReferences = List<DocumentReference>.from(userDocument['userFavorite']);
 
-                return Column(
-                  children: [
-                    SizedBox(
-                      height: 200,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        children: cafeCards,
-                      ),
-                    ),
-                  ],
-                );
+                  if (userFavoriteReferences.isNotEmpty) {
+                    final userFavoriteDataFutures = userFavoriteReferences.map((reference) => reference.get());
+                    return FutureBuilder<List<DocumentSnapshot>>(
+                      future: Future.wait(userFavoriteDataFutures),
+                      builder: (context, userFavoriteSnapshots) {
+                        if (userFavoriteSnapshots.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (userFavoriteSnapshots.hasError) {
+                          return Text('Error: ${userFavoriteSnapshots.error}');
+                        } else {
+                          final userFavoriteData = userFavoriteSnapshots.data;
+                          if (userFavoriteData != null) {
+                            final cafeCards = userFavoriteData
+                                .where((favoriteData) => favoriteData['category'] == 'cafe')
+                                .map<Widget>((favoriteData) {
+                              final name = favoriteData['name'];
+                              return buildCard('Cafe Spots', name);
+                            }).toList();
+
+                            return Column(
+                              children: [
+                                SizedBox(
+                                  height: 200,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    children: cafeCards,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                        }
+                        return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
+                      },
+                    );
+                  }
+                }
+
+                return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
               }
             },
           ),
+
+
 
           const SizedBox(height: 20,),
           const Align(
@@ -97,37 +115,62 @@ class _SavedPageState extends State<SavedPage> {
             ),
           ),
           SizedBox(height: 10,),
-          FutureBuilder<QuerySnapshot>(
-            future: FirebaseFirestore.instance.collection('user').doc(uid).collection('userFavorite').get(),
+          FutureBuilder<DocumentSnapshot>(
+            future: FirebaseFirestore.instance.collection('user').doc(uid).get(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
-                // Firebase에서 데이터 가져오기 성공
-                final studyCards = snapshot.data!.docs
-                    .where((document) => document['category'] == 'studyspot')
-                    .map<Widget>((document) {
-                  final name = document['name'];
-                  return buildCard('Study Spots', name);
-                }).toList();
+                final userDocument = snapshot.data;
+                if (userDocument != null) {
+                  final userFavoriteReferences = List<DocumentReference>.from(userDocument['userFavorite']);
 
-                return Column(
-                  children: [
-                    SizedBox(
-                      height: 200,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        children: studyCards,
-                      ),
-                    ),
-                  ],
-                );
+                  if (userFavoriteReferences.isNotEmpty) {
+                    final userFavoriteDataFutures = userFavoriteReferences.map((reference) => reference.get());
+                    return FutureBuilder<List<DocumentSnapshot>>(
+                      future: Future.wait(userFavoriteDataFutures),
+                      builder: (context, userFavoriteSnapshots) {
+                        if (userFavoriteSnapshots.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (userFavoriteSnapshots.hasError) {
+                          return Text('Error: ${userFavoriteSnapshots.error}');
+                        } else {
+                          final userFavoriteData = userFavoriteSnapshots.data;
+                          if (userFavoriteData != null) {
+                            final cafeCards = userFavoriteData
+                                .where((favoriteData) => favoriteData['category'] == 'studyspot')
+                                .map<Widget>((favoriteData) {
+                              final name = favoriteData['name'];
+                              return buildCard('Cafe Spots', name);
+                            }).toList();
+
+                            return Column(
+                              children: [
+                                SizedBox(
+                                  height: 200,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    children: cafeCards,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                        }
+                        return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
+                      },
+                    );
+                  }
+                }
+
+                return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
               }
             },
           ),
+
         ],
       ),
     );
