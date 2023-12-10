@@ -11,6 +11,30 @@ class SavedPage extends StatefulWidget {
 
 class _SavedPageState extends State<SavedPage> {
   String uid = FirebaseAuth.instance.currentUser!.uid;
+  List<DocumentReference> userFavorites = [];
+
+  @override
+  void initState() {
+    print("init state");
+    super.initState();
+    // SavedPage에 들어올 때 초기 데이터 로드
+    loadUserFavorites();
+  }
+
+  // 초기 데이터 로드
+  Future<void> loadUserFavorites() async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('user').doc(uid).get();
+      if (snapshot.exists) {
+        List<DocumentReference> favorites = List<DocumentReference>.from(snapshot['userFavorite']);
+        setState(() {
+          userFavorites = favorites;
+        });
+      }
+    } catch (e) {
+      print('Error loading favorites: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +204,51 @@ class _SavedPageState extends State<SavedPage> {
       ),
     );
   }
+
+  Future<void> removeFromFavorites(String category, String name, DocumentReference cafeReference) async {
+    print('removeFromFavorites function called');
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+
+      // Firestore에서 사용자 즐겨찾기 목록에서 카페 참조 제거
+      await FirebaseFirestore.instance.collection('user').doc(uid).update({
+        'userFavorite': FieldValue.arrayRemove([cafeReference]),
+      });
+
+      print('Firestore에서 카페가 즐겨찾기 목록에서 제거되었습니다.');
+
+      // SavedPage로 돌아가기
+      //Navigator.pop(context);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SavedPage()));
+
+    } catch (e) {
+      print('즐겨찾기에서 제거 중 오류 발생: $e');
+    }
+  }
+
+
+// Future<void> removeFromFavorites(String category, String name, DocumentReference cafeReference) async {
+  //   print('removeFromFavorites function called');
+  //   try {
+  //     String uid = FirebaseAuth.instance.currentUser!.uid;
+  //
+  //     // Remove cafe reference from userFavorite list in Firestore
+  //     await FirebaseFirestore.instance.collection('user').doc(uid).update({
+  //       'userFavorite': FieldValue.arrayRemove([cafeReference]),
+  //     });
+  //
+  //     print('Cafe removed from favorites in Firestore.');
+  //
+  //     // Update the UI using setState
+  //     setState(() {
+  //       // You may want to update the state here, for example, by removing the item from a list
+  //       // userFavorites.cafeFavorites.remove(cafeReference);
+  //     });
+  //
+  //   } catch (e) {
+  //     print('Error removing from favorites: $e');
+  //   }
+  // }
 }
 
 Widget buildCard(String category, String name, VoidCallback onTap) {
@@ -237,22 +306,24 @@ Widget buildCard(String category, String name, VoidCallback onTap) {
       ],
     ),
   );
+
 }
 
-Future<void> removeFromFavorites(String category, String name, DocumentReference cafeReference) async {
-  print('removeFromFavorites function called');
-  try {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
+// Future<void> removeFromFavorites(String category, String name, DocumentReference cafeReference) async {
+//   print('removeFromFavorites function called');
+//   try {
+//     String uid = FirebaseAuth.instance.currentUser!.uid;
+//
+//     // Remove cafe reference from userFavorite list in Firestore
+//     await FirebaseFirestore.instance.collection('user').doc(uid).update({
+//       'userFavorite': FieldValue.arrayRemove([cafeReference]),
+//     });
+//
+//     print('Cafe removed from favorites in Firestore.');
+//
+//     // TODO: You may want to update the UI here by triggering a rebuild or updating state.
+//   } catch (e) {
+//     print('Error removing from favorites: $e');
+//   }
+// }
 
-    // Remove cafe reference from userFavorite list in Firestore
-    await FirebaseFirestore.instance.collection('user').doc(uid).update({
-      'userFavorite': FieldValue.arrayRemove([cafeReference]),
-    });
-
-    print('Cafe removed from favorites in Firestore.');
-
-    // TODO: You may want to update the UI here by triggering a rebuild or updating state.
-  } catch (e) {
-    print('Error removing from favorites: $e');
-  }
-}
