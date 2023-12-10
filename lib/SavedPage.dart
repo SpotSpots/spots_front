@@ -73,7 +73,11 @@ class _SavedPageState extends State<SavedPage> {
                                 .where((favoriteData) => favoriteData['category'] == 'cafe')
                                 .map<Widget>((favoriteData) {
                               final name = favoriteData['name'];
-                              return buildCard('Cafe Spots', name);
+                              final cafeReference = favoriteData.reference;
+
+                              return buildCard('Cafe Spots', name, () {
+                                removeFromFavorites('cafe', name, cafeReference);
+                              });
                             }).toList();
 
                             return Column(
@@ -100,8 +104,6 @@ class _SavedPageState extends State<SavedPage> {
               }
             },
           ),
-
-
 
           const SizedBox(height: 20,),
           const Align(
@@ -139,11 +141,15 @@ class _SavedPageState extends State<SavedPage> {
                         } else {
                           final userFavoriteData = userFavoriteSnapshots.data;
                           if (userFavoriteData != null) {
-                            final cafeCards = userFavoriteData
+                            final studyCards = userFavoriteData
                                 .where((favoriteData) => favoriteData['category'] == 'studyspot')
                                 .map<Widget>((favoriteData) {
                               final name = favoriteData['name'];
-                              return buildCard('Cafe Spots', name);
+
+                              final cafeReference = favoriteData.reference;
+                              return buildCard('Study Spots', name, () {
+                                removeFromFavorites('studyspot', name, cafeReference);
+                              });
                             }).toList();
 
                             return Column(
@@ -153,7 +159,7 @@ class _SavedPageState extends State<SavedPage> {
                                   child: ListView(
                                     scrollDirection: Axis.horizontal,
                                     padding: EdgeInsets.symmetric(horizontal: 16),
-                                    children: cafeCards,
+                                    children: studyCards,
                                   ),
                                 ),
                               ],
@@ -170,14 +176,13 @@ class _SavedPageState extends State<SavedPage> {
               }
             },
           ),
-
         ],
       ),
     );
   }
 }
 
-Widget buildCard(String category, String name) {
+Widget buildCard(String category, String name, VoidCallback onTap) {
   return Container(
     width: 150,
     height: 210,
@@ -218,10 +223,7 @@ Widget buildCard(String category, String name) {
                 ),
                 child: IconButton(
                   icon: Icon(Icons.favorite, color: Colors.pink),
-                  onPressed: () {
-                    print('heart button clicked');
-                    removeFromFavorites(category, name);
-                  },
+                  onPressed: onTap,
                   iconSize: 16,
                 ),
               ),
@@ -237,32 +239,19 @@ Widget buildCard(String category, String name) {
   );
 }
 
-Future<void> removeFromFavorites(String category, String name) async {
+Future<void> removeFromFavorites(String category, String name, DocumentReference cafeReference) async {
   print('removeFromFavorites function called');
   try {
     String uid = FirebaseAuth.instance.currentUser!.uid;
-    print(uid);
-    QuerySnapshot userFavoritesSnapshot = await FirebaseFirestore.instance
-        .collection('user')
-        .doc(uid)
-        .collection('userFavorite')
-        .where('category', isEqualTo: category)
-        .where('name', isEqualTo: name)
-        .get();
 
-    if (userFavoritesSnapshot.docs.isNotEmpty) {
-      print("in delete");
-      String docId = userFavoritesSnapshot.docs.first.id;
-      print(docId);
-      await FirebaseFirestore.instance
-          .collection('user')
-          .doc(uid)
-          .collection('userFavorite')
-          .doc(docId)
-          .delete();
-    } else {
-      print('No document found for deletion');
-    }
+    // Remove cafe reference from userFavorite list in Firestore
+    await FirebaseFirestore.instance.collection('user').doc(uid).update({
+      'userFavorite': FieldValue.arrayRemove([cafeReference]),
+    });
+
+    print('Cafe removed from favorites in Firestore.');
+
+    // TODO: You may want to update the UI here by triggering a rebuild or updating state.
   } catch (e) {
     print('Error removing from favorites: $e');
   }
