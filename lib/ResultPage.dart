@@ -186,10 +186,7 @@ class _ResultPageState extends State<ResultPage> {
                                     Stack(
                                         children : [
                                           Image( // 카페 이미지 : cafe/image
-                                             //image: NetworkImage(cafe.image!),
-                                              image: AssetImage(
-                                                  'assets/cafe1.png'
-                                              ),
+                                             image: NetworkImage(cafe.image!),
                                               width: 380
                                           ),
                                           Positioned(
