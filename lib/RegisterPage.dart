@@ -10,7 +10,11 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0, // Set elevation to 0 to remove the shadow
         title: Text('Register'),
       ),
       body: const RegisterForm(),
@@ -37,72 +41,88 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       inAsyncCall: saving,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-            key: _formKey,
-            child: ListView(
-              children: [
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'User Name',
-                  ),
-                  onChanged: (value) {
-                    userName = value;
-                  },
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                  ),
-                  onChanged: (value) {
-                    email = value;
-                  },
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                  ),
-                  onChanged: (value) {
-                    password = value;
-                  },
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      setState(() {
-                        saving = true;
-                      });
-                      final newUser = await _authentication
-                          .createUserWithEmailAndPassword(
-                          email: email, password: password);
-                      await FirebaseFirestore.instance.collection('user').doc(newUser.user!.uid).set({
-                        'userName' : userName,
-                        'email': email,
-                      });
-                      if (newUser.user != null) {
-                        _formKey.currentState!.reset();
-                        if (!mounted) return;
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => const SuccessRegisterPage()));
-                      }
-                      setState(() {
-                        saving = false;
-                      });
-                    } catch (e) {
-                      print(e);
-                    }
-                  },
-                  child: Text('Enter')),
-              ],
-            )
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/LogoPage.png'), // Adjust the path accordingly
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+                key: _formKey,
+                child: ListView(
+                  //mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'User Name',
+                      ),
+                      onChanged: (value) {
+                        userName = value;
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                      ),
+                      onChanged: (value) {
+                        email = value;
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                      ),
+                      onChanged: (value) {
+                        password = value;
+                      },
+                    ),
+                    SizedBox(height: 30,),
+                    ElevatedButton(
+                      onPressed: () async {
+                        try {
+                          setState(() {
+                            saving = true;
+                          });
+                          final newUser = await _authentication
+                              .createUserWithEmailAndPassword(
+                              email: email, password: password);
+                          await FirebaseFirestore.instance.collection('user').doc(newUser.user!.uid).set({
+                            'userName' : userName,
+                            'email': email,
+                          });
+                          if (newUser.user != null) {
+                            _formKey.currentState!.reset();
+                            if (!mounted) return;
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (context) => const SuccessRegisterPage()));
+                          }
+                          setState(() {
+                            saving = false;
+                          });
+                        } catch (e) {
+                          print(e);
+                        }
+                      },
+                        style: ButtonStyle(
+                          // Set minWidth to your desired width
+                          minimumSize: MaterialStateProperty.all<Size>(Size(double.infinity, 48)),
+                        ),
+                      child: Text('Enter')),
+                  ],
+                )
+            ),
+          ),
         ),
       ),
     );
