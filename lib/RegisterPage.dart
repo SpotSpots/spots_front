@@ -101,6 +101,19 @@ class _RegisterFormState extends State<RegisterForm> {
                             'userName' : userName,
                             'email': email,
                           });
+                          // Add userFavorite collection
+                          // Do not add any document, just create an empty collection
+                          await FirebaseFirestore.instance.collection('user').doc(newUser.user!.uid)
+                              .collection('userFavorite').doc().set({});
+
+                          // Add userFavorite collection with an empty document
+                          // await FirebaseFirestore.instance.collection('user').doc(newUser.user!.uid)
+                          //     .collection('userFavorite').doc().set({
+                          //   'name': '',
+                          //   'category': '',
+                          // });
+
+
                           if (newUser.user != null) {
                             _formKey.currentState!.reset();
                             if (!mounted) return;
