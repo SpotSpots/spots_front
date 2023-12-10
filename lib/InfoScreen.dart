@@ -93,7 +93,6 @@ class _InfoScreenState extends State<InfoScreen> {
   ];
   bool _showMoreReviews = false;
   List<String> _userNames = ['alexiamae', 'liamthom..', 'emilygrace', 'lexijade', 'eljjaaaa'];
-  int _congestionLevel = -1; // -1: 선택 안 함, 0: 낮음, 1: 보통, 2: 높음
   TextEditingController _reviewController = TextEditingController(); // 리뷰를 입력받을 컨트롤러
 
   bool boothSeating = true;
@@ -112,8 +111,8 @@ class _InfoScreenState extends State<InfoScreen> {
           children: [
             Stack(
               children: [
-                Image.asset('assets/${_cafeData?.image}', width: double.infinity, height: 200, fit: BoxFit.cover),
-
+                // Image.asset('assets/${_cafeData?.image}', width: double.infinity, height: 200, fit: BoxFit.cover),
+                Image.asset('assets/cafe1.png'),
                 Positioned(
                   top: 16,
                   left: 16,
@@ -221,7 +220,6 @@ class _InfoScreenState extends State<InfoScreen> {
 
         ElevatedButton(
           onPressed: () {
-            _toggleCheckIn(_reviewController.text);
           },
           style: ElevatedButton.styleFrom(
             minimumSize: Size(80, 70),
@@ -255,17 +253,6 @@ class _InfoScreenState extends State<InfoScreen> {
                     buildProfile(_userNames[i], 'time', visibleReviews[i]),
                     Divider(),
                   ],
-
-                  if (!_showMoreReviews)
-                    ElevatedButton(
-                      onPressed: _toggleMoreReviews,
-                      child: Text('More Reviews'),
-                    ),
-                  if (_showMoreReviews)
-                    ElevatedButton(
-                      onPressed: _toggleMoreReviews,
-                      child: Text('Less Reviews'),
-                    ),
                 ],
               ),
             ),
@@ -323,7 +310,7 @@ class _InfoScreenState extends State<InfoScreen> {
             shape: BoxShape.circle,
             border: Border.all(color: Colors.black),
             image: DecorationImage(
-              image: AssetImage('assets/_cafeData.png'),
+              image: AssetImage('assets/cafe1.png'),
               fit: BoxFit.cover,
             ),
           ),
@@ -363,30 +350,6 @@ class _InfoScreenState extends State<InfoScreen> {
     );
   }
 
-  Widget _buildRadioButtonWithImage(String label, int value) {
-    return Row(
-      children: [
-        Radio(
-          value: value,
-          groupValue: _congestionLevel,
-          onChanged: (int? selectedValue) {
-            setState(() {
-              _congestionLevel = selectedValue!;
-            });
-          },
-        ),
-        Image.asset(
-          'assets/$label.png',  // 이미지 파일의 경로
-          width: 10,
-          height: 10,
-        ),
-        SizedBox(width: 8),
-        Text(label),
-      ],
-    );
-  }
-
-
 
   /* function */
   void _selectedTab(int index) {
@@ -401,187 +364,6 @@ class _InfoScreenState extends State<InfoScreen> {
     });
   }
 
-  // void _updateCongestionLevel(int newCongestionLevel) {
-  //   // TODO: Firestore를 사용하여 DB에서 해당 카페의 congestion 값을 업데이트
-  //   // widget.cafeInfo는 현재 카페의 이름입니다.
-  //   FirebaseFirestore.instance
-  //       .collection('cafe')
-  //       .doc(widget.cafeInfo)
-  //       .update({'congestion': newCongestionLevel})
-  //       .then((_) {
-  //     print('Congestion level updated successfully!');
-  //   }).catchError((error) {
-  //     print('Error updating congestion level: $error');
-  //   });
-  // }
-
-  void _addToRecentlyCheckedIn(bool checkedIn, int congestionLevel, String review) {
-    // TODO: Recently Checked In에 추가하는 로직을 구현
-    // checkedIn: 체크인 상태, congestionLevel: 선택한 혼잡도, review: 작성한 리뷰
-    // firebase 연동
-  }
-
-  void _toggleMoreReviews() {
-    setState(() {
-      _showMoreReviews = !_showMoreReviews;
-    });
-  }
-
-  void _toggleCheckIn(String review) {
-    if (_isChecked) {
-      // Check Out 상태일 때 리뷰를 쓸 수 있는 팝업 띄우기
-      _showReviewPopup();
-    } else {
-      // Check In 상태일 때 팝업 창 띄우기
-      _showCongestionPopup();
-    }
-  }
-
-  void _showCongestionPopup() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select Congestion Level'),
-          contentPadding: EdgeInsets.symmetric(vertical: 16),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildRadioButtonWithImage('sparse', 0),
-              _buildRadioButtonWithImage('normal', 1),
-              _buildRadioButtonWithImage('congest', 2),
-              SizedBox(height: 16),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Check if a RadioButton is selected
-                if (_congestionLevel == -1) {
-                  // Show a warning that a congestion level should be selected
-                  _showCongestionWarning();
-                } else {
-                  // Proceed with Check In logic
-                  Navigator.of(context).pop(); // Close the dialog
-                  _performCheckIn(_reviewController.text);
-                  // _updateCongestionLevel(_congestionLevel); // Update congestion level in DB
-                }
-              },
-              child: Text('Done'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showCongestionWarning() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Warning'),
-          content: Text('Please select a congestion level before checking in.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showReviewPopup() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Write Your Review'),
-          content: Column(
-            children: [
-              TextField(
-                controller: _reviewController,
-                decoration: InputDecoration(
-                  hintText: 'Write your review',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Skip'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Check if review is not empty
-                if (_reviewController.text.isNotEmpty) {
-                  // Proceed with Check Out logic
-                  Navigator.of(context).pop(); // Close the dialog
-                  _performCheckOut();
-                } else {
-                  // Show a warning that review should be written
-                  _showReviewWarning();
-                }
-              },
-              child: Text('Done'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showReviewWarning() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Warning'),
-          content: Text('Please write a review before checking out.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _performCheckIn(String review) {
-    // TODO: Implement Check In logic
-    setState(() {
-      _isChecked = true;
-      _checkInText = 'Check Out';
-    });
-    _addToRecentlyCheckedIn(true, _congestionLevel, review);
-  }
-
-  void _performCheckOut() {
-    // TODO: Implement Check Out logic
-    setState(() {
-      _isChecked = false;
-      _checkInText = 'Check In';
-    });
-  }
 
 
 }
