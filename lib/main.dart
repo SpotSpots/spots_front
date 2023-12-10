@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'HomePage.dart';
+import 'InfoScreen.dart';
 import 'firebase_options.dart';
 import 'LogoPage.dart';
 import 'package:spotsfront/fab_with_icons.dart';
@@ -34,7 +35,8 @@ class MyApp extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return HomePage();
+            // return HomePage();
+            return InfoScreen();
           }
           else {
             return const LogoPage();

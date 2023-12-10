@@ -1,8 +1,57 @@
 import 'package:flutter/material.dart';
 
-class InfoScreen extends StatelessWidget {
+import 'fab_bottom_app_bar.dart';
+import 'fab_with_icons.dart';
+import 'layout.dart';
+
+class InfoScreen extends StatefulWidget {
+  @override
+  _InfoScreenState createState() => _InfoScreenState();
+}
+
+class _InfoScreenState extends State<InfoScreen> {
+  String _lastSelected = 'TAB: 0';
+  String _checkInText = 'Check In';
+  bool _isChecked = false;
+  List<String> _reviews = [
+    'Great place with a cozy atmosphere. Highly recommended!',
+    'Nice coffee and friendly staff.',
+    'Quiet place to work. Good coffee.',
+    'Love the interior design. Good place for meetings.',
+    'Great spot for studying. WiFi is fast!',
+  ];
+  bool _showMoreReviews = false;
+  List<String> _userNames = ['alexiamae', 'liamthom..', 'emilygrace', 'lexijade', 'eljjaaaa'];
+
+  void _selectedTab(int index) {
+    setState(() {
+      _lastSelected = 'TAB: $index';
+    });
+  }
+
+  void _selectedFab(int index) {
+    setState(() {
+      _lastSelected = 'FAB: $index';
+    });
+  }
+
+  void _toggleCheckIn() {
+    setState(() {
+      _isChecked = !_isChecked;
+      _checkInText = _isChecked ? 'Checked!' : 'Check In';
+    });
+  }
+
+  void _toggleMoreReviews() {
+    setState(() {
+      _showMoreReviews = !_showMoreReviews;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<String> visibleReviews = _showMoreReviews ? _reviews : _reviews.take(3).toList();
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -20,7 +69,7 @@ class InfoScreen extends StatelessWidget {
                   child: Container(
                     width: 36,
                     height: 36,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.white,
                     ),
@@ -70,8 +119,8 @@ class InfoScreen extends StatelessWidget {
             ),
 
             // 상점 정보 상단 섹션
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -109,7 +158,24 @@ class InfoScreen extends StatelessWidget {
               ),
             ),
 
-            // Divider
+            // Check In 버튼
+            ElevatedButton(
+              onPressed: _toggleCheckIn,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0), // Adjust horizontal padding
+                child: Text(
+                  _checkInText,
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(80, 70), // Adjust minimum size
+                primary: _isChecked ? Colors.green : Colors.blue,
+              ),
+            ),
+
+            SizedBox(height: 20),
+
             Divider(),
 
             // Recently Checked In 섹션
@@ -118,34 +184,28 @@ class InfoScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
+                  const Text(
                     'Recently Checked In',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 20),
 
                   // Profile 리스트
-                  Row(
-                    children: [
-                      buildProfile('alexiamae', 'now'),
-                      buildProfile('liamthom..', '1 hr ago'),
-                      buildProfile('emilygrace', '4 hr ago'),
-                      buildProfile('lexijade', '1 day ago'),
-                      buildProfile('eljjaaaa', '5 day ago'),
-                    ],
-                  ),
+                  for (int i = 0; i < visibleReviews.length; i++) ...[
+                    buildProfile(_userNames[i], 'time', visibleReviews[i]),
+                    Divider(),
+                  ],
 
-                  SizedBox(height: 20),
-
-                  // Check In 버튼
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: Text('Check In'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(100, 70),
+                  if (!_showMoreReviews)
+                    ElevatedButton(
+                      onPressed: _toggleMoreReviews,
+                      child: Text('More Reviews'),
                     ),
-                  )
-,
+                  if (_showMoreReviews)
+                    ElevatedButton(
+                      onPressed: _toggleMoreReviews,
+                      child: Text('Less Reviews'),
+                    ),
                 ],
               ),
             ),
@@ -154,8 +214,8 @@ class InfoScreen extends StatelessWidget {
             Divider(),
 
             // Amenities 섹션
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -167,30 +227,89 @@ class InfoScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: FABBottomAppBar(
+        centerItemText: 'Explore',
+        color: Colors.blue,
+        selectedColor: Colors.red,
+        notchedShape: CircularNotchedRectangle(),
+        onTabSelected: _selectedTab,
+        items: [
+          FABBottomAppBarItem(iconData: Icons.home, text: 'Home'),
+          FABBottomAppBarItem(iconData: Icons.favorite, text: 'Saved'),
+          FABBottomAppBarItem(iconData: Icons.chat_bubble, text: 'Activity'),
+          FABBottomAppBarItem(iconData: Icons.person, text: 'Profile'),
+        ],
+        backgroundColor: Colors.white,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: _buildFab(
+        context,
+      ),
     );
   }
 
-  Widget buildProfile(String name, String time) {
-    return Expanded(
-      child: Column(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.black),
-              image: DecorationImage(
-                image: AssetImage('assets/cafe1.png'), // 프로필 이미지 경로로 수정
-                fit: BoxFit.cover,
-              ),
+  Widget _buildFab(BuildContext context) {
+    final icons = [Icons.school, Icons.local_cafe, Icons.more];
+    return AnchoredOverlay(
+      showOverlay: true,
+      overlayBuilder: (context, offset) {
+        return CenterAbout(
+          position: Offset(offset.dx, offset.dy - icons.length * 35.0),
+          child: FabWithIcons(
+            icons: icons,
+            onIconTapped: _selectedFab,
+          ),
+        );
+      },
+      child: FloatingActionButton(
+        onPressed: () {},
+        tooltip: 'Increment',
+        child: Icon(Icons.explore),
+        elevation: 2.0,
+        shape: CircleBorder(),
+      ),
+    );
+  }
+
+  Widget buildProfile(String name, String time, String review) {
+    return Row(
+      children: [
+        // 프로필 이미지
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.black),
+            image: DecorationImage(
+              image: AssetImage('assets/cafe1.png'), // 프로필 이미지 경로로 수정
+              fit: BoxFit.cover,
             ),
           ),
-          SizedBox(height: 4),
-          Text(name),
-          Text(time, style: TextStyle(color: Colors.grey)),
-        ],
-      ),
+        ),
+        SizedBox(width: 8),
+        // 프로필 정보 및 리뷰
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 프로필 이름
+              Text(name),
+              SizedBox(height: 4),
+              // 리뷰 텍스트
+              Padding(
+                padding: const EdgeInsets.only(top: 0, left: 8.0, right: 8.0, bottom: 8.0),
+                child: Text(
+                  review,
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // 리뷰 작성 시간
+        Text(time, style: TextStyle(color: Colors.grey)),
+      ],
     );
   }
 }
