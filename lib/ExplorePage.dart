@@ -19,15 +19,39 @@ class _ExplorePageState extends State<ExplorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xffE9E9E9),
+      // appBar: AppBar(
+      //   title: Text('Explore'),
+      // ),
       appBar: AppBar(
-        title: Text('Explore'),
+        centerTitle: true,
+        backgroundColor: Colors.transparent, // 고정 색상 지정
+        // backgroundColor: Color(0xffE9E9E9),
+        title: Text('Explore', style: TextStyle(fontWeight: FontWeight.bold),),
+        leading: IconButton(
+          icon: Icon(Icons.navigate_before, size: 28,),
+          onPressed: () {
+            print("navigage_before icon clicked");
+          },
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(20.0),
+          child: Container(
+            //padding: EdgeInsets.all(8.0),
+            alignment: Alignment.center,
+            // child: Text(
+            //   'drag and drop to groups',
+            //   style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+            // ),
+          ),
+        ),
       ),
       body: Column(
         children: [
           // 위 절반: 이미지
           Expanded(
             child: Image.asset(
-              'assets/cau.png',
+              'assets/cau_spots.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -91,9 +115,14 @@ class MyBuildingCard extends StatelessWidget {
             Column(
               children: building.studySpots
                   .map((spot) => Card(
-                color: Colors.yellow, // study spot의 배경 색을 노란색으로 지정
+                color: Colors.lightGreen, // study spot의 배경 색을 노란색으로 지정
                 child: ListTile(
                   title: Text(spot),
+                  onTap: () {
+                    onTap?.call();
+                    print("clicked!"); // 여기서 info로 검색결과 전달 되도록 수정
+                  },
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0), // 여백 추가
                 ),
               ))
                   .toList(),
