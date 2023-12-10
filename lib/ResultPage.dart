@@ -137,10 +137,10 @@ class _ResultPageState extends State<ResultPage> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ), onPressed : (){},
                     child: Row(
-                  children: [
-                    const Text('Sort'), Icon(Icons.expand_more),
-                  ],
-                )),
+                      children: [
+                        const Text('Sort'), Icon(Icons.expand_more),
+                      ],
+                    )),
                 ElevatedButton(style : ElevatedButton.styleFrom(
                   minimumSize: Size.zero,
                   padding: EdgeInsets.fromLTRB(15, 7, 15, 7),
@@ -186,7 +186,7 @@ class _ResultPageState extends State<ResultPage> {
                                     Stack(
                                         children : [
                                           Image( // 카페 이미지 : cafe/image
-                                             image: NetworkImage(cafe.image!),
+                                              image: NetworkImage(cafe.image!),
                                               width: 380
                                           ),
                                           Positioned(
@@ -215,23 +215,19 @@ class _ResultPageState extends State<ResultPage> {
                                             child: Text(cafes[i].rating!, style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),),
                                           ),
                                           Positioned( // 찜 기능 : 나중에 추가
-                                            bottom: -5,
-                                            left: 160,
-                                            child: const Image(
-                                                image: AssetImage(
-                                                    'assets/circle.png'
-                                                ),
-                                                width: 380
-                                            ),
-                                          ),
-                                          Positioned(
-                                            bottom: 12,
-                                            left: 160,
-                                            child: const Image(
-                                                image: AssetImage(
-                                                    'assets/heart.png'
-                                                ),
-                                                width: 380
+                                            bottom: 166,
+                                            left: 335,
+                                            child: Container(
+                                              width: 36,
+                                              height: 36,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Colors.white,
+                                              ),
+                                              child: IconButton(
+                                                icon: Icon(Icons.favorite_border, color: Colors.red, size: 20,),
+                                                onPressed: () {},
+                                              ),
                                             ),
                                           ),
                                         ]
@@ -243,12 +239,12 @@ class _ResultPageState extends State<ResultPage> {
                                       child: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.fromLTRB(2,0,0,0),
-                                                child: Column( // 이름, 위치 정보 : cafe/name
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(11,0,11,0),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Column( // 이름, 위치 정보 : cafe/name
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(cafe.name!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
@@ -264,15 +260,12 @@ class _ResultPageState extends State<ResultPage> {
                                                     ),
                                                   ],
                                                 ),
-                                              ),
-                                              const SizedBox(
-                                                width: 90,
-                                              ),
-                                              ElevatedButton( // checkin 버튼 나중에 구현
-                                                  style : ElevatedButton.styleFrom(
-                                                      minimumSize: Size(60, 30)),
-                                                  onPressed: (){}, child: Text('Check In')),
-                                            ],
+                                                ElevatedButton( // checkin 버튼 나중에 구현
+                                                    style : ElevatedButton.styleFrom(
+                                                        minimumSize: Size(60, 30)),
+                                                    onPressed: (){}, child: Text('Check In')),
+                                              ],
+                                            ),
                                           ),
                                           const SizedBox(
                                             height: 15,
