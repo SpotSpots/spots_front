@@ -5,23 +5,23 @@ import 'package:spotsfront/InfoScreen.dart';
 class Cafe {
   Cafe({
     this.name,
-    this.rating,
     this.amenNum,
     this.congestion,
+    this.image,
     this.reference,
   });
 
   String? name;
-  String? rating;
   String? amenNum;
   String? congestion;
+  String? image;
   DocumentReference? reference;
 
   Cafe.fromJson(dynamic json,this.reference){
     name = json['name'];
-    rating = json['rating'];
     amenNum = json['amenNum'];
     congestion = json['congestion'];
+    image = json['image'];
   }
   Cafe.fromSnapShot(DocumentSnapshot<Map<String, dynamic>> snapshot)
       : this.fromJson(snapshot.data(),snapshot.reference);
@@ -31,6 +31,22 @@ class Cafe {
       : this.fromJson(snapshot.data(),snapshot.reference);
 }
 
+
+class CafeService {
+  Future<List<Cafe>> getCafes() async {
+    CollectionReference<Map<String, dynamic>> collectionReference =
+    FirebaseFirestore.instance.collection('cafe');
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+    await collectionReference.get();
+    List<Cafe> cafes = [];
+    for (var doc in querySnapshot.docs) {
+      Cafe cafe = Cafe.fromQuerySnapshot(doc);
+      cafes.add(cafe);
+    }
+    return cafes;
+  }
+}
+
 class ResultPage extends StatefulWidget {
   const ResultPage({Key? key}) : super(key: key);
 
@@ -38,25 +54,12 @@ class ResultPage extends StatefulWidget {
   State<ResultPage> createState() => _ResultPageState();
 }
 
-List<Cafe> cafes = [];
-class _ResultPageState extends State<ResultPage> {
 
-  Future<List<Cafe>> getCafes() async {
-    CollectionReference<Map<String, dynamic>> collectionReference =
-    FirebaseFirestore.instance.collection('cafe');
-    QuerySnapshot<Map<String, dynamic>> querySnapshot =
-    await collectionReference.get();
-    for (var doc in querySnapshot.docs) {
-      Cafe cafe = Cafe.fromQuerySnapshot(doc);
-      cafes.add(cafe);
-    }
-    return cafes;
-  }
+class _ResultPageState extends State<ResultPage> {
 
   @override
   void initState(){
     super.initState();
-    getCafes();
   }
 
   Widget build(BuildContext context) {
@@ -160,141 +163,153 @@ class _ResultPageState extends State<ResultPage> {
             // 3. 카페 이미지 + 정보
             SizedBox(height: 25,),
             Expanded(
-              child: ListView.builder(
-                  itemCount: cafes.length,
-                  itemBuilder: (BuildContext context, int i){
-                    return GestureDetector(
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => InfoScreen(cafes[i].name!)));
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(bottom: 20.0),
-                        child: Column(
-                          children: [
-                            Stack(
-                                children : [
-                                  const Image( // 카페 이미지 : cafe/image
-                                      image: AssetImage(
-                                          'assets/cafe1.png'
-                                      ),
-                                      width: 380
-                                  ),
-                                  Positioned(
-                                    bottom: 117,
-                                    right: 153,
-                                    child: const Image(
-                                        image: AssetImage(
-                                            'assets/starMark.png'
-                                        ),
-                                        width: 380
+              child: FutureBuilder<List<Cafe>>(
+                  future: CafeService().getCafes(),
+                  builder: (context, snapshot){
+                    if(snapshot.hasData) {
+                      List<Cafe> cafes = snapshot.data!;
+                      return ListView.builder(
+                          itemCount: cafes.length,
+                          itemBuilder: (BuildContext context, int i){
+                            Cafe cafe = cafes[i];
+                            return GestureDetector(
+                              onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => InfoScreen(cafe.name!)));
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(bottom: 20.0),
+                                child: Column(
+                                  children: [
+                                    Stack(
+                                        children : [
+                                          Image( // 카페 이미지 : cafe/image
+                                            // image: NetworkImage(cafe.image!),
+                                              image: AssetImage(
+                                                  'assets/cafe1.png'
+                                              ),
+                                              width: 380
+                                          ),
+                                          Positioned(
+                                            bottom: 117,
+                                            right: 153,
+                                            child: const Image(
+                                                image: AssetImage(
+                                                    'assets/starMark.png'
+                                                ),
+                                                width: 380
+                                            ),
+                                          ),
+                                          // Positioned(
+                                          //   bottom: 9,
+                                          //   right: 176,
+                                          //   child: const Image(
+                                          //       image: AssetImage(
+                                          //           'assets/star.png'
+                                          //       ),
+                                          //       width: 380
+                                          //   ),
+                                          // ),
+                                          Positioned(
+                                            top: 26,
+                                            left: 6,
+                                            child: Image.asset('assets/${cafe.congestion!}.png', width: 10, height: 10,),
+                                          ),
+                                          // Positioned(  // 별점 정보 : cafe/rating
+                                          //   bottom: 176,
+                                          //   left: 25,
+                                          //   child: Text(cafes[i].rating!, style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),),
+                                          // ),
+                                          Positioned(  // 혼잡도 정보 : cafe/congestion
+                                            bottom: 177,
+                                            left: 20,
+                                            child: Text(cafe.congestion!, style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w500),),
+                                          ),
+                                          Positioned(
+                                            bottom: -5,
+                                            left: 160,
+                                            child: const Image(
+                                                image: AssetImage(
+                                                    'assets/circle.png'
+                                                ),
+                                                width: 380
+                                            ),
+                                          ),
+                                          Positioned(
+                                            bottom: 12,
+                                            left: 160,
+                                            child: const Image(
+                                                image: AssetImage(
+                                                    'assets/heart.png'
+                                                ),
+                                                width: 380
+                                            ),
+                                          ),
+                                        ]
                                     ),
-                                  ),
-                                  // Positioned(
-                                  //   bottom: 9,
-                                  //   right: 176,
-                                  //   child: const Image(
-                                  //       image: AssetImage(
-                                  //           'assets/star.png'
-                                  //       ),
-                                  //       width: 380
-                                  //   ),
-                                  // ),
-                                  Positioned(
-                                    top: 26,
-                                    left: 6,
-                                    child: Image.asset('assets/${cafes[i].congestion!}.png', width: 10, height: 10,),
-                                  ),
-                                  // Positioned(  // 별점 정보 : cafe/rating
-                                  //   bottom: 176,
-                                  //   left: 25,
-                                  //   child: Text(cafes[i].rating!, style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),),
-                                  // ),
-                                  Positioned(  // 혼잡도 정보 : cafe/congestion
-                                    bottom: 177,
-                                    left: 20,
-                                    child: Text(cafes[i].congestion!, style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w500),),
-                                  ),
-                                  Positioned(
-                                    bottom: -5,
-                                    left: 160,
-                                    child: const Image(
-                                        image: AssetImage(
-                                            'assets/circle.png'
-                                        ),
-                                        width: 380
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 12,
-                                    left: 160,
-                                    child: const Image(
-                                        image: AssetImage(
-                                            'assets/heart.png'
-                                        ),
-                                        width: 380
-                                    ),
-                                  ),
-                                ]
-                            ),
-                            Container(
-                              width: 380,
-                              height: 110,
-                              color: Colors.white,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Column( // 이름, 위치 정보 : cafe/name
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                    Container(
+                                      width: 380,
+                                      height: 110,
+                                      color: Colors.white,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Text(cafes[i].name!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                             children: [
-                                              Icon(Icons.location_on),
-                                              Text('2.4 mi // Irvine'),
+                                              Column( // 이름, 위치 정보 : cafe/name
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(cafe.name!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      Icon(Icons.location_on),
+                                                      Text('2.4 mi // Irvine'),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                width: 110,
+                                              ),
+                                              ElevatedButton( // checkin 버튼 나중에 구현
+                                                  style : ElevatedButton.styleFrom(
+                                                      minimumSize: Size(60, 30)),
+                                                  onPressed: (){}, child: Text('Check In')),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 15,
+                                          ),
+                                          Row( // amenities 정보 : cafe/amenities
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              SizedBox(width: 2),
+                                              Icon(Icons.wifi),
+                                              Text('Wi-fi'),
+                                              SizedBox(width: 5),
+                                              Icon(Icons.videocam),
+                                              Text('Outlets'),
+                                              SizedBox(width: 5),
+                                              Icon(Icons.volume_up),
+                                              Text('Moderate Noise'),
+                                              SizedBox(width: 8),
+                                              Text('+ ${cafe.amenNum!} More', style: TextStyle(color: Colors.grey),),
+                                              SizedBox(width: 2),
                                             ],
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(
-                                        width: 110,
-                                      ),
-                                      ElevatedButton( // checkin 버튼 나중에 구현
-                                          style : ElevatedButton.styleFrom(
-                                              minimumSize: Size(60, 30)),
-                                          onPressed: (){}, child: Text('Check In')),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 15,
-                                  ),
-                                  Row( // amenities 정보 : cafe/amenities
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      SizedBox(width: 2),
-                                      Icon(Icons.wifi),
-                                      Text('Wi-fi'),
-                                      SizedBox(width: 5),
-                                      Icon(Icons.videocam),
-                                      Text('Outlets'),
-                                      SizedBox(width: 5),
-                                      Icon(Icons.volume_up),
-                                      Text('Moderate Noise'),
-                                      SizedBox(width: 8),
-                                      Text('+ ${cafes[i].amenNum!} More', style: TextStyle(color: Colors.grey),),
-                                      SizedBox(width: 2),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                            );
+                          }
+                      );
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
                   }
               ),
             ),
