@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'ResultPage.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'SearchPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,8 +12,41 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String userName = '';
+
+  @override
+  void initState(){
+    super.initState();
+    fetchUserName();
+  }
+
+  Future<void> fetchUserName() async {
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('user').doc(uid).get();
+
+      setState(() {
+        userName = userSnapshot['userName'];
+      });
+    } catch (error) {
+      print('Error : $error');
+    }
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
+    final CollectionReference _cafe = FirebaseFirestore.instance.collection('cafe');
+
+    // DatabaseReference starCountRef =
+    // FirebaseDatabase.instance.ref('posts/$postId/starCount');
+    // starCountRef.onValue.listen((DatabaseEvent event) {
+    //   final data = event.snapshot.value;
+    //   updateStarCount(data);
+    // });
+
     return Scaffold(
       backgroundColor: const Color(0xffE9E9E9),
       appBar: PreferredSize(
@@ -29,15 +63,22 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.circular(20),
               color: Colors.white,
             ),
-            child: const Row(
+            child: Row(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   backgroundImage: AssetImage('assets/cafe1.png'),
                 ),
-                SizedBox(width: 7),
-                Text(
-                  'Hello Emma!',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                const SizedBox(width: 7),
+                Row(
+                  children: [
+                    const Text(
+                      'Hello, ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('$userName!',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -240,52 +281,122 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 10),
 
                         // 3-3. 장소 카드 뷰
-                        GridView.builder(
-                          shrinkWrap: true,
-                          // padding: const EdgeInsets.symmetric(horizontal: 30),
-                          itemCount: 4,
-                          itemBuilder: (ctx, i) {
-                            return Card(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20)),
-                                margin: const EdgeInsets.all(5),
-                                padding: const EdgeInsets.all(5),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Image.asset('assets/cafe1.png', fit: BoxFit.fill),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    const Text(
-                                      'KRISP Fresh Living',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
+                    StreamBuilder(
+                      stream: _cafe.snapshots(),
+                      builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+                        if (streamSnapshot.hasData) {
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            itemCount: streamSnapshot.data!.docs.length,
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 1,
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 5,
+                            ),
+                            itemBuilder: (context, index) {
+                              final DocumentSnapshot documentSnapshot = streamSnapshot.data!
+                                  .docs[index];
+                              return GestureDetector(
+                                onTap: () {
+                                },
+                                child:
+                                Container(
+                                  child: Stack(
+                                    children: [
+                                      // 이미지
+                                      Container(
+                                        margin: EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(20),
+                                            boxShadow: [BoxShadow(
+                                                color: Colors.grey.withOpacity(0.7),
+                                                spreadRadius: 0,
+                                                blurRadius: 5.0,
+                                                offset: Offset(0, 5)
+                                            )
+                                            ],
+                                            image: DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: NetworkImage(
+                                                    documentSnapshot['image'])
+                                            )
+                                        ),
                                       ),
-                                    ),
-                                    const Text(
-                                      '2.4 km',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 8,
-                                        color: Colors.grey,
+                                      // 하트
+                                      Positioned(
+                                        top: -10,
+                                        child: const Image(
+                                            image: AssetImage(
+                                                'assets/heart.png'
+                                            ),
+                                            width: 380
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                      //하얀색 컨테이너
+                                      Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: Container(
+                                          alignment: Alignment.bottomLeft,
+                                          height: 50,
+                                          margin: EdgeInsets.all(5),
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                  bottomRight: Radius.circular(20)),
+                                              color: Colors.white,
+                                              boxShadow: [BoxShadow(
+                                                  color: Colors.grey.withOpacity(0.7),
+                                                  spreadRadius: 0,
+                                                  blurRadius: 5.0,
+                                                  offset: Offset(0, 5)
+                                              )
+                                              ]
+                                          ),
+                                          child: Container( // 이름, 거리
+                                            margin: const EdgeInsets.only(left: 10),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                                              children: [
+                                                Text(
+                                                  documentSnapshot['name'],
+                                                  style: const TextStyle(
+                                                    fontSize: 17,
+                                                    color: Colors.black,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                const Text(
+                                                  // 위치에 대한 자세한 정보 넣기
+                                                  '4.2km',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  maxLines: 1,
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 1.0,
-                            crossAxisSpacing: 2,
-                            mainAxisSpacing: 5,
-                            // mainAxisExtent: 200,
-                          ),
-                        ),
+                              );
+                            },
+                          );
+                        }
+                        else {
+                          return const Center(child: SizedBox(
+                            height: 50,
+                            width: 50,
+                            child: CircularProgressIndicator(color: Colors.blue,),
+                          ));
+                        }
+                      },
+                    ),
+
 
                       ],
                     ),
