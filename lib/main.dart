@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'HomePage.dart';
-import 'InfoScreen.dart';
 import 'firebase_options.dart';
+import 'TabControlPage.dart';
 import 'LogoPage.dart';
-import 'package:spotsfront/fab_with_icons.dart';
-import 'package:spotsfront/fab_bottom_app_bar.dart';
-import 'package:spotsfront/layout.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,8 +31,7 @@ class MyApp extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            // return HomePage();
-            return InfoScreen();
+            return const TabControlPage();
           }
           else {
             return const LogoPage();
@@ -46,4 +41,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

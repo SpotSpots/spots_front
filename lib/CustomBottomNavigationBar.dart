@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'TabItem.dart';
+import 'fab_bottom_app_bar.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   const CustomBottomNavigationBar({super.key, required this.currentTab, required this.onSelectTab});
@@ -8,37 +9,22 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.favorite),
-          label: 'Saved',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.explore),
-          label: 'Explore',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.near_me),
-          label: 'Activity',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        )
-      ],
-      onTap: (index) => onSelectTab(
+    return FABBottomAppBar(
+      centerItemText: 'Explore',
+      color: Colors.blue,
+      selectedColor: Colors.red,
+      notchedShape: CircularNotchedRectangle(),
+      onTabSelected: (index) => onSelectTab(
         TabItem.values[index],
       ),
+      items: [
+        FABBottomAppBarItem(iconData: Icons.home, text: 'Home'),
+        FABBottomAppBarItem(iconData: Icons.favorite, text: 'Saved'),
+        FABBottomAppBarItem(iconData: Icons.chat_bubble, text: 'Activity'),
+        FABBottomAppBarItem(iconData: Icons.person, text: 'Profile'),
+      ],
+      backgroundColor: Colors.white,
       currentIndex: currentTab.index,
-      selectedItemColor: Colors.amber,
     );
   }
 }
-
-// https://codewithandrea.com/articles/bottom-bar-navigation-with-fab/

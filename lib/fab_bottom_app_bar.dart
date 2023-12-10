@@ -1,7 +1,4 @@
   import 'package:flutter/material.dart';
-  import 'package:spotsfront/HomePage.dart';
-  import 'SavedPage.dart';
-  import 'HomePage.dart';
 
   class FABBottomAppBarItem {
     FABBottomAppBarItem({required this.iconData, required this.text});
@@ -20,6 +17,7 @@
       required this.selectedColor,
       required this.notchedShape,
       required this.onTabSelected,
+      required this.currentIndex,
     }) {
       assert(this.items.length == 2 || this.items.length == 4);
     }
@@ -32,6 +30,7 @@
     final Color selectedColor;
     final NotchedShape notchedShape;
     final ValueChanged<int> onTabSelected;
+    final int currentIndex;
 
     @override
     State<StatefulWidget> createState() => FABBottomAppBarState();
@@ -45,18 +44,6 @@
       setState(() {
         _selectedIndex = index;
       });
-      if (_selectedIndex == 0) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()), // SavedPage.dart로 변경
-        );
-      }
-      if (_selectedIndex == 1) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const SavedPage()), // SavedPage.dart로 변경
-        );
-      }
     }
 
     @override

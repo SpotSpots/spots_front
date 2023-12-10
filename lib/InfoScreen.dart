@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'fab_bottom_app_bar.dart';
-import 'fab_with_icons.dart';
-import 'layout.dart';
-
 class InfoScreen extends StatefulWidget {
   @override
   _InfoScreenState createState() => _InfoScreenState();
@@ -314,49 +310,6 @@ class _InfoScreenState extends State<InfoScreen> {
 
           ],
         ),
-      ),
-      bottomNavigationBar: FABBottomAppBar(
-        centerItemText: 'Explore',
-        color: Colors.blue,
-        selectedColor: Colors.red,
-        notchedShape: CircularNotchedRectangle(),
-        onTabSelected: _selectedTab,
-        items: [
-          FABBottomAppBarItem(iconData: Icons.home, text: 'Home'),
-          FABBottomAppBarItem(iconData: Icons.favorite, text: 'Saved'),
-          FABBottomAppBarItem(iconData: Icons.chat_bubble, text: 'Activity'),
-          FABBottomAppBarItem(iconData: Icons.person, text: 'Profile'),
-        ],
-        backgroundColor: Colors.white,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: _buildFab(
-        context,
-      ),
-    );
-  }
-
-
-
-  Widget _buildFab(BuildContext context) {
-    final icons = [Icons.school, Icons.local_cafe, Icons.more];
-    return AnchoredOverlay(
-      showOverlay: true,
-      overlayBuilder: (context, offset) {
-        return CenterAbout(
-          position: Offset(offset.dx, offset.dy - icons.length * 35.0),
-          child: FabWithIcons(
-            icons: icons,
-            onIconTapped: _selectedFab,
-          ),
-        );
-      },
-      child: FloatingActionButton(
-        onPressed: () {},
-        tooltip: 'Increment',
-        child: Icon(Icons.explore),
-        elevation: 2.0,
-        shape: CircleBorder(),
       ),
     );
   }
