@@ -8,6 +8,7 @@ class Cafe {
     this.amenNum,
     this.congestion,
     this.image,
+    this.rating,
     this.reference,
   });
 
@@ -15,6 +16,7 @@ class Cafe {
   String? amenNum;
   String? congestion;
   String? image;
+  String? rating;
   DocumentReference? reference;
 
   Cafe.fromJson(dynamic json,this.reference){
@@ -22,6 +24,7 @@ class Cafe {
     amenNum = json['amenNum'];
     congestion = json['congestion'];
     image = json['image'];
+    rating = json['rating'];
   }
   Cafe.fromSnapShot(DocumentSnapshot<Map<String, dynamic>> snapshot)
       : this.fromJson(snapshot.data(),snapshot.reference);
@@ -116,49 +119,49 @@ class _ResultPageState extends State<ResultPage> {
               ),
             ),
 
-            // 2. 정렬, 필터링 버튼 // 작동 되도록 수정
-            // SizedBox(
-            //   height: 25,
-            // ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //   children: [
-            //     ElevatedButton(style : ElevatedButton.styleFrom(
-            //       minimumSize: Size.zero,
-            //       padding: EdgeInsets.fromLTRB(7, 7, 7, 7),
-            //       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            //     ), onPressed : (){}, child: const Icon(Icons.tune)),
-            //     ElevatedButton(style : ElevatedButton.styleFrom(
-            //       minimumSize: Size.zero,
-            //       padding: EdgeInsets.fromLTRB(15, 7, 10, 7),
-            //       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            //     ), onPressed : (){},
-            //         child: Row(
-            //       children: [
-            //         const Text('Sort'), Icon(Icons.expand_more),
-            //       ],
-            //     )),
-            //     ElevatedButton(style : ElevatedButton.styleFrom(
-            //       minimumSize: Size.zero,
-            //       padding: EdgeInsets.fromLTRB(15, 7, 15, 7),
-            //       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            //     ), onPressed : (){}, child: const Text('Open Now')),
-            //     ElevatedButton(style : ElevatedButton.styleFrom(
-            //       minimumSize: Size.zero,
-            //       padding: EdgeInsets.fromLTRB(15, 7, 10, 7),
-            //       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            //     ), onPressed : (){}, child: Row(
-            //       children: [
-            //         const Text('Price'), Icon(Icons.expand_more),
-            //       ],
-            //     )),
-            //     ElevatedButton(style : ElevatedButton.styleFrom(
-            //       minimumSize: Size.zero,
-            //       padding: EdgeInsets.fromLTRB(15, 7, 15, 7),
-            //       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            //     ), onPressed : (){}, child: const Text('Wi-Fi')),
-            //   ],
-            // ),
+            // 2. 정렬, 필터링 버튼
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(style : ElevatedButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: EdgeInsets.fromLTRB(7, 7, 7, 7),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ), onPressed : (){}, child: const Icon(Icons.tune)),
+                ElevatedButton(style : ElevatedButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: EdgeInsets.fromLTRB(15, 7, 10, 7),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ), onPressed : (){},
+                    child: Row(
+                  children: [
+                    const Text('Sort'), Icon(Icons.expand_more),
+                  ],
+                )),
+                ElevatedButton(style : ElevatedButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: EdgeInsets.fromLTRB(15, 7, 15, 7),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ), onPressed : (){}, child: const Text('Open Now')),
+                ElevatedButton(style : ElevatedButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: EdgeInsets.fromLTRB(15, 7, 10, 7),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ), onPressed : (){}, child: Row(
+                  children: [
+                    const Text('Price'), Icon(Icons.expand_more),
+                  ],
+                )),
+                ElevatedButton(style : ElevatedButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: EdgeInsets.fromLTRB(15, 7, 15, 7),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ), onPressed : (){}, child: const Text('Wi-Fi')),
+              ],
+            ),
 
             // 3. 카페 이미지 + 정보
             SizedBox(height: 25,),
@@ -183,7 +186,7 @@ class _ResultPageState extends State<ResultPage> {
                                     Stack(
                                         children : [
                                           Image( // 카페 이미지 : cafe/image
-                                            // image: NetworkImage(cafe.image!),
+                                             //image: NetworkImage(cafe.image!),
                                               image: AssetImage(
                                                   'assets/cafe1.png'
                                               ),
@@ -191,7 +194,7 @@ class _ResultPageState extends State<ResultPage> {
                                           ),
                                           Positioned(
                                             bottom: 117,
-                                            right: 153,
+                                            right: 159,
                                             child: const Image(
                                                 image: AssetImage(
                                                     'assets/starMark.png'
@@ -199,32 +202,22 @@ class _ResultPageState extends State<ResultPage> {
                                                 width: 380
                                             ),
                                           ),
-                                          // Positioned(
-                                          //   bottom: 9,
-                                          //   right: 176,
-                                          //   child: const Image(
-                                          //       image: AssetImage(
-                                          //           'assets/star.png'
-                                          //       ),
-                                          //       width: 380
-                                          //   ),
-                                          // ),
                                           Positioned(
-                                            top: 26,
-                                            left: 6,
-                                            child: Image.asset('assets/${cafe.congestion!}.png', width: 10, height: 10,),
+                                            bottom: 8,
+                                            right: 176,
+                                            child: const Image(
+                                                image: AssetImage(
+                                                    'assets/star.png'
+                                                ),
+                                                width: 380
+                                            ),
                                           ),
-                                          // Positioned(  // 별점 정보 : cafe/rating
-                                          //   bottom: 176,
-                                          //   left: 25,
-                                          //   child: Text(cafes[i].rating!, style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),),
-                                          // ),
-                                          Positioned(  // 혼잡도 정보 : cafe/congestion
-                                            bottom: 177,
-                                            left: 20,
-                                            child: Text(cafe.congestion!, style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w500),),
+                                          Positioned(  // 별점 정보 : cafe/rating
+                                            bottom: 175,
+                                            left: 25,
+                                            child: Text(cafes[i].rating!, style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),),
                                           ),
-                                          Positioned(
+                                          Positioned( // 찜 기능 : 나중에 추가
                                             bottom: -5,
                                             left: 160,
                                             child: const Image(
@@ -256,21 +249,27 @@ class _ResultPageState extends State<ResultPage> {
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                             children: [
-                                              Column( // 이름, 위치 정보 : cafe/name
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(cafe.name!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    children: [
-                                                      Icon(Icons.location_on),
-                                                      Text('2.4 mi // Irvine'),
-                                                    ],
-                                                  ),
-                                                ],
+                                              Padding(
+                                                padding: const EdgeInsets.fromLTRB(2,0,0,0),
+                                                child: Column( // 이름, 위치 정보 : cafe/name
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(cafe.name!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      children: [
+                                                        //Icon(Icons.location_on),
+                                                        Image.asset('assets/${cafe.congestion!}.png', width: 12, height: 12,),
+                                                        Text(' Here is '),
+                                                        Text(cafe.congestion!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),),
+                                                        Text(' now'),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                               const SizedBox(
-                                                width: 110,
+                                                width: 90,
                                               ),
                                               ElevatedButton( // checkin 버튼 나중에 구현
                                                   style : ElevatedButton.styleFrom(
