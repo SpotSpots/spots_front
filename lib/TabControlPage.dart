@@ -42,7 +42,6 @@ class _TabControlPageState extends State<TabControlPage> {
         children: <Widget>[
           _buildOffstageNavigator(TabItem.home),
           _buildOffstageNavigator(TabItem.saved),
-          _buildOffstageNavigator(TabItem.explore),
         ],
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
