@@ -247,6 +247,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Text('$userName!',
                       style: const TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -452,27 +453,6 @@ class _HomePageState extends State<HomePage> {
                                         top: 25,
                                         left: 20,
                                         child: Text(documentSnapshot['rating'], style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),)
-                                      ),
-
-                                      // 찜하기 - 하트 아이콘
-                                      Positioned(
-                                        top: 15,
-                                        right: 15,
-                                        child: Container(
-                                          width: 32,
-                                          height: 32,
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.white,
-                                          ),
-                                          child: IconButton(
-                                            icon: Icon(Icons.favorite_border, color: Colors.pink),
-                                            onPressed: () {
-                                              print('heart button clicked');
-                                            },
-                                            iconSize: 16,
-                                          ),
-                                        ),
                                       ),
 
                                       //하얀색 컨테이너
