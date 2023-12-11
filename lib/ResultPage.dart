@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:spotsfront/InfoScreen.dart';
 import 'CafeService.dart';
+import 'RecentSearches.dart';
 
 class ResultPage extends StatefulWidget {
   const ResultPage(
@@ -127,6 +129,7 @@ class _ResultPageState extends State<ResultPage> {
 
 
   Widget build(BuildContext context) {
+    String searchKeyword = widget.searchKeyword;
     return Scaffold(
       backgroundColor: const Color(0xffD5EAF7),
       appBar: AppBar(
@@ -136,6 +139,7 @@ class _ResultPageState extends State<ResultPage> {
         leading: IconButton(
             icon: Icon(Icons.navigate_before, size: 28),
             onPressed: () {
+              FocusScope.of(context).unfocus();
               Navigator.pop(context);
             }
         ),
@@ -158,22 +162,47 @@ class _ResultPageState extends State<ResultPage> {
             SizedBox(height: 10,),
             Padding(
               padding: const EdgeInsets.fromLTRB(10,0,10,0),
-              child: ElevatedButton(style : ElevatedButton.styleFrom(
-                minimumSize: Size.zero,
-                padding: EdgeInsets.fromLTRB(10, 15, 0, 15),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ), onPressed : (){},
-                child: const Row(
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                width: MediaQuery.of(context).size.width,
+                height: 54,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      blurRadius: 20,
+                      offset: Offset(0, 11), // changes position of shadow
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(25),
+                  color: Colors.white,
+                ),
+                child: Row(
                   children: [
                     Icon(Icons.search),
                     SizedBox(width: 10),
-                    Text(
-                      'Cafes  ',
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Current Location',
-                      style: TextStyle(color: Colors.grey),
+                    Expanded(
+                      child: TextFormField(
+                        initialValue: searchKeyword,
+                        style: TextStyle(fontSize:15),
+                        decoration: InputDecoration(
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            border: InputBorder. none,
+                            hintText: 'Search cafe, library, study centers...',
+                            hintStyle: TextStyle(color: Colors.grey)
+                        ),
+                        onChanged: (value){
+                          searchKeyword = value;
+                        },
+                        onFieldSubmitted: (value) {
+                          context.read<RecentSearches>().addSearchKeyword(searchKeyword);
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) => ResultPage(searchKeyword: searchKeyword, cafeQuery: CafeService().getCafesBySearchKeyword(searchKeyword))));
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -347,16 +376,16 @@ class _ResultPageState extends State<ResultPage> {
                                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                             children: [
                                               SizedBox(width: 2),
-                                              Icon(Icons.wifi,  size: 20,),
-                                              Text('Wi-fi', style: TextStyle(fontSize: 12),),
-                                              SizedBox(width: 7),
-                                              Icon(Icons.videocam, size: 20,),
-                                              Text('Outlets', style: TextStyle(fontSize: 12),),
-                                              SizedBox(width: 7),
+                                              Icon(Icons.wifi),
+                                              Text('Wi-fi'),
+                                              SizedBox(width: 5),
+                                              Icon(Icons.videocam),
+                                              Text('Outlets'),
+                                              SizedBox(width: 5),
                                               Icon(Icons.volume_up),
-                                              Text('Moderate Noise', style: TextStyle(fontSize: 12),),
-                                              SizedBox(width: 7),
-                                              Text('+ ${cafe.amenNum!} More', style: TextStyle(color: Colors.grey, fontSize: 10), ),
+                                              Text('Moderate Noise'),
+                                              SizedBox(width: 8),
+                                              Text('+ ${cafe.amenNum!} More', style: TextStyle(color: Colors.grey),),
                                               SizedBox(width: 2),
                                             ],
                                           ),
