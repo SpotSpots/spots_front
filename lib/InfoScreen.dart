@@ -117,13 +117,13 @@ class _InfoScreenState extends State<InfoScreen> {
 
           reviews.insert(0, review.split('/')[2]);
         }
+        _times.insert(0, 'now');
       }
 
       // 상태를 업데이트합니다.
       setState(() {
         _userNames = userNames;
         _reviews = reviews;
-
       });
     } catch (error) {
       print('리뷰 가져오기 오류: $error');
@@ -385,6 +385,7 @@ class _InfoScreenState extends State<InfoScreen> {
   List<String> _reviews = [];
   bool _showMoreReviews = false;
 
+  List<String> _times = ['32 min ago', '51 min ago', '1 hr ago', '3 hr ago', '5 hr ago', '12 hr ago','15 hr ago','22 hr ago','1 day ago','5 days ago', '7 days ago', '7 days ago', '9 days ago', '10 days ago', '15 days ago'];
 
   bool boothSeating = true;
   bool limitedOutlets = true;
@@ -404,8 +405,7 @@ class _InfoScreenState extends State<InfoScreen> {
           children: [
             Stack(
               children: [
-                // Image.asset('assets/${_cafeData?.image}', width: double.infinity, height: 200, fit: BoxFit.cover),
-                Image.asset('assets/cafe1.png'),
+                Image.network(_cafeData?.image ?? 'assets/cafe1.png'),
                 Positioned(
                   top: 35,
                   left: 16,
@@ -464,23 +464,25 @@ class _InfoScreenState extends State<InfoScreen> {
                       Row(
                         children: [
                           Text(
-                            _cafeData?.name ?? 'Loading...',
+                            _cafeData?.name ?? '',
                             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(width: 20),
                           Image.asset(
-                            'assets/${_cafeData?.congestion ?? 'default'}.png',
+                            _cafeData?.congestion != null
+                                ? 'assets/${_cafeData?.congestion}.png'
+                                : 'assets/normal.png', // 기본 이미지 경로로 수정
                             width: 10,
                             height: 10,
                           ),
                           SizedBox(width: 8),
-                          Text(_cafeData!.congestion),
+                          Text(_cafeData?.congestion ?? ''),
                         ],
                       ),
                       Row(
                         children: [
                           Icon(Icons.star, color: Colors.yellow),
-                          Text(_cafeData!.rating),
+                          Text(_cafeData?.rating ?? ''),
                         ],
                       ),
                     ],
@@ -493,9 +495,9 @@ class _InfoScreenState extends State<InfoScreen> {
                   ),
                   Row(
                     children: [
-                      Text(_cafeData!.category),
+                      Text(_cafeData?.category  ?? ''),
                       Text('  //  '),
-                      Text(_cafeData!.detail),
+                      Text(_cafeData?.detail  ?? ''),
                     ]
                   ),
                 ],
@@ -551,7 +553,7 @@ class _InfoScreenState extends State<InfoScreen> {
               SizedBox(height: 20),
 
               for (int i = 0; i < (visibleReviews.length > 3 && !_showMoreReviews ? 3 : visibleReviews.length); i++) ...[
-                buildProfile(_userNames[i], 'time', visibleReviews[i]),
+                buildProfile(_userNames[i], _times[i], visibleReviews[i]),
                 SizedBox(height: 10),
               ],
 
