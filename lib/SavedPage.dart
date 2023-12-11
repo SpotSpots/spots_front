@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'InfoScreen.dart';
+
 class SavedPage extends StatefulWidget {
   const SavedPage({Key? key}) : super(key: key);
 
@@ -54,6 +56,18 @@ class _SavedPageState extends State<SavedPage> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         title: Text('Saved', style: TextStyle(fontWeight: FontWeight.bold)),
+        leading: IconButton(
+            icon: Icon(Icons.navigate_before, size: 28),
+            onPressed: () {}
+        ),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.more_horiz),
+              onPressed: () {
+                print('clicked');
+              }
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(20.0),
           child: Container(
@@ -114,7 +128,7 @@ class _SavedPageState extends State<SavedPage> {
 
                                 return buildCard('Cafe Spots', name, cafeImage, () {
                                   removeFromFavorites('cafe', name, cafeReference);
-                                });
+                                }, context);
                               }).toList();
 
                               return Column(
@@ -197,7 +211,7 @@ class _SavedPageState extends State<SavedPage> {
                                 print("checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk" + cafeImage);
                                 return buildCard('Study Spots', name, cafeImage, () {
                                   removeFromFavorites('studyspot', name, cafeReference);
-                                });
+                                }, context);
                               }).toList();
 
                               return Column(
@@ -285,7 +299,7 @@ class _SavedPageState extends State<SavedPage> {
   // }
 }
 
-Widget buildCard(String category, String name, String imageUrl, VoidCallback onTap) {
+Widget buildCard(String category, String name, String imageUrl, VoidCallback onTap, BuildContext context) {
   return Container(
     width: 150,
     height: 210,
@@ -311,10 +325,15 @@ Widget buildCard(String category, String name, String imageUrl, VoidCallback onT
                   //   'assets/cafe1.png',
                   //   fit: BoxFit.fitHeight,
                   // ),
-                  child: Image( // 카페 이미지 : cafe/image
-                      fit: BoxFit.cover,
-                      image: NetworkImage(imageUrl),
-                      width: 380
+                  child: GestureDetector(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => InfoScreen(name)));
+                    },
+                    child: Image( // 카페 이미지 : cafe/image
+                        fit: BoxFit.cover,
+                        image: NetworkImage(imageUrl),
+                        width: 380
+                    ),
                   ),
                 ),
               ),
