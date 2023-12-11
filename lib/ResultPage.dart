@@ -16,18 +16,59 @@ class ResultPage extends StatefulWidget {
   State<ResultPage> createState() => _ResultPageState();
 }
 
+List<bool> _isFavorite = [];
+
+Future<void> initUserFavorites(String cafeName, int i) async {
+  print("addToUserFavorites " + cafeName); // ok
+  try {
+    // 현재 사용자 인증 상태 확인
+    User? user = FirebaseAuth.instance.currentUser;
+    print(user?.uid); // helloworld1로 로그인 함
+    print(cafeName);
+
+    if (user != null) {
+      String uid = user.uid;
+
+      // 1. cafeInfo로 cafe collection을 검색
+      QuerySnapshot cafeQuery = await FirebaseFirestore.instance
+          .collection('cafe')
+          .where('name', isEqualTo: cafeName)
+          .get();
+
+      if (cafeQuery.docs.isNotEmpty) {
+        // 2. uid로 user collection을 검색
+        DocumentReference userReference =
+        FirebaseFirestore.instance.collection('user').doc(uid);
+
+        // 3. uid 검색 결과 나온 document의 하위 필드인 userFavorite에 cafeInfo로 검색한 cafe를 reference 하도록 설정
+        DocumentReference cafeReference = cafeQuery.docs.first.reference;
+
+        // Get the current user document
+        DocumentSnapshot userSnapshot = await userReference.get();
+
+        // Initialize userFavorite field as an empty list if it doesn't exist
+        List<dynamic> userFavorites = userSnapshot['userFavorite'] ?? [];
+
+        // Toggle the favorite state
+        _isFavorite[i] = userFavorites.contains(cafeReference);
+
+        print('Cafe favorite status updated successfully.');
+      }
+    }
+  } catch (error) {
+    print('Error adding cafe to user favorites: $error');
+  }
+}
 
 class _ResultPageState extends State<ResultPage> {
-
-  late bool _isFavorite;
 
   @override
   void initState(){
     super.initState();
-    _isFavorite = false;
+    print(_isFavorite);
   }
 
-  Future<void> addToUserFavorites(String cafeName) async {
+  Future<void> addToUserFavorites(String cafeName, int i) async {
     print("addToUserFavorites " + cafeName); // ok
     try {
       // 현재 사용자 인증 상태 확인
@@ -73,7 +114,7 @@ class _ResultPageState extends State<ResultPage> {
           // Toggle the favorite state
           setState(() {
             //cafe.isFavorite = !cafe.isFavorite;
-            _isFavorite = userFavorites.contains(cafeReference);
+            _isFavorite[i] = userFavorites.contains(cafeReference);
           });
 
           print('Cafe favorite status updated successfully.');
@@ -195,6 +236,7 @@ class _ResultPageState extends State<ResultPage> {
                           itemCount: cafes.length,
                           itemBuilder: (BuildContext context, int i){
                             Cafe cafe = cafes[i];
+                            initUserFavorites(cafe.name!, i);
                             return GestureDetector(
                               onTap: (){
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => InfoScreen(cafe.name!)));
@@ -246,13 +288,14 @@ class _ResultPageState extends State<ResultPage> {
                                               ),
                                               child: IconButton(
                                                 icon: Icon(
-                                                  _isFavorite
+                                                  _isFavorite[i]
                                                       ? Icons.favorite
                                                       : Icons.favorite_border,
-                                                  color: _isFavorite ? Colors.red : Colors.grey,
+                                                  color: _isFavorite[i] ? Colors.red : Colors.red,
+                                                  size: 20,
                                                 ),
                                                 onPressed: () async {
-                                                  addToUserFavorites(cafe.name!);
+                                                  addToUserFavorites(cafe.name!, i);
                                                 },
                                               ),
                                             ),

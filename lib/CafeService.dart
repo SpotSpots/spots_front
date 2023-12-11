@@ -6,6 +6,7 @@ class Cafe {
     this.name,
     this.amenNum,
     this.congestion,
+    this.detail,
     this.image,
     this.rating,
     this.reference,
