@@ -1,14 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-import 'fab_bottom_app_bar.dart';
-import 'fab_with_icons.dart';
-import 'layout.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CafeInfo {
   final String amenNum;
   final String category;
-  final String congestion;
+  String congestion;
   final String detail;
   final String image;
   final String name;
@@ -38,11 +35,15 @@ class InfoScreen extends StatefulWidget {
 class _InfoScreenState extends State<InfoScreen> {
 
   CafeInfo? _cafeData;
+  String _selectedCongestion = "";
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
 
   @override
   void initState() {
     super.initState();
     _fetchCafeInfo();
+    _fetchReviews();
   }
 
   Future<void> _fetchCafeInfo() async {
@@ -80,25 +81,231 @@ class _InfoScreenState extends State<InfoScreen> {
     }
   }
 
+  Future<void> _fetchReviews() async {
+    try {
+      // Firestore에서 해당 카페이름을 가진 문서의 리뷰 데이터를 가져옵니다.
+      DocumentSnapshot cafeSnapshot = await FirebaseFirestore.instance
+          .collection('cafe')
+          .doc(widget.cafeInfo)
+          .get();
+
+      // 가져온 리뷰 데이터를 리스트에 할당합니다.
+      List<String> userNames = [];
+      List<String> reviews = [];
+
+      if (cafeSnapshot.exists) {
+        List<dynamic> reviewSnapshot = cafeSnapshot['reviews'];
+
+        for (var review in reviewSnapshot) {
+          // Firestore에서 해당 userID를 가진 문서를 가져와서 userName 필드 값을 얻습니다.
+          DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+              .collection('user')
+              .doc(review.split('/')[1]) // 구조가 'user/userId/reviewText'인 경우
+              .get();
+
+          // userName 필드 값을 가져와서 _userNames 리스트에 추가합니다.
+          if (userSnapshot.exists) {
+            userNames.insert(0, userSnapshot['userName']);
+
+          } else {
+            // 사용자 문서가 존재하지 않거나 'userName' 필드가 없는 경우 처리
+            userNames.insert(0, 'unknown');
+
+          }
+
+          reviews.insert(0, review.split('/')[2]);
+        }
+      }
+
+      // 상태를 업데이트합니다.
+      setState(() {
+        _userNames = userNames;
+        _reviews = reviews;
+
+      });
+    } catch (error) {
+      print('리뷰 가져오기 오류: $error');
+    }
+  }
+
+  Future<void> _showCongestionDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Select Congestion'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCongestionRadioTile('congest', 'Congest', setState),
+                  _buildCongestionRadioTile('normal', 'Normal', setState),
+                  _buildCongestionRadioTile('sparse', 'Sparse', setState),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    // Handle the done button click
+                    print("Done button clicked: _selectedCongestion=$_selectedCongestion");
+                    if (_selectedCongestion.isNotEmpty) {
+                      // Update UI
+                      setState(() {
+                        _cafeData?.congestion = _selectedCongestion;
+                      });
+
+                      // TODO: Update Firestore with the new congestion value
+                      try {
+                        // Firestore에서 해당 카페이름을 가진 문서를 찾습니다.
+                        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+                            .collection('cafe')
+                            .where('name', isEqualTo: widget.cafeInfo)
+                            .get();
+
+                        // 가져온 문서가 하나일 경우에만 처리합니다.
+                        if (querySnapshot.docs.length == 1) {
+                          // 문서 ID를 가져옵니다.
+                          String documentID = querySnapshot.docs.first.id;
+
+                          // 문서를 업데이트합니다. 문서 ID를 사용하여 업데이트할 문서를 지정합니다.
+                          await FirebaseFirestore.instance
+                              .collection('cafe')
+                              .doc(documentID)
+                              .update({'congestion': _selectedCongestion});
+
+                          print('Firestore document updated successfully!');
+                        } else {
+                          print('Document not found or multiple documents found.');
+                        }
+                      } catch (error) {
+                        print('Error updating Firestore document: $error');
+                      }
+                      // Close the dialog
+                      Navigator.of(context).pop();
+
+                      // Update the text in the main screen
+                      setState(() {}); // This will trigger a redraw of the main screen
+                    }
+                  },
+                  child: Text('Done'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _showReviewDialog() async {
+    String? userId = getCurrentUserId();
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Write a Review'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _reviewController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  hintText: 'Enter your review here...',
+                  contentPadding: EdgeInsets.all(16.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(color: Colors.redAccent),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(width: 2, color: Colors.redAccent),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Clear the text field when cancel is pressed
+                _reviewController.clear();
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Handle the review submission
+                String reviewText = _reviewController.text;
+                if (userId != null && reviewText.isNotEmpty) {
+                  try {
+                    // 리뷰 업데이트 수행
+                    await FirebaseFirestore.instance
+                        .collection('user')
+                        .doc(userId)
+                        .update({
+                      'reviews': FieldValue.arrayUnion(['cafe/${widget.cafeInfo}/$reviewText'])
+                    });
+
+                    // 카페의 리뷰 업데이트
+                    await FirebaseFirestore.instance
+                        .collection('cafe')
+                        .doc(widget.cafeInfo)
+                        .update({
+                      'reviews': FieldValue.arrayUnion(['user/$userId/$reviewText'])
+                    });
+
+                    print('Review submitted and Firestore updated successfully!');
+
+                    await _fetchReviews();
+
+
+
+                  } catch (error) {
+                    print('Error updating Firestore with the new review: $error');
+                  }
+
+                  // Close the dialog
+                  Navigator.of(context).pop();
+
+                  // Update the text in the main screen
+                  setState(() {}); // This will trigger a redraw of the main screen
+                }
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   String _lastSelected = 'TAB: 0';
-  String _checkInText = 'Check In';
   bool _isChecked = false;
-  List<String> _reviews = [
-    'Great place with a cozy atmosphere. Highly recommended!',
-    'Nice coffee and friendly staff.',
-    'Quiet place to work. Good coffee.',
-    'Love the interior design. Good place for meetings.',
-    'Great spot for studying. WiFi is fast!',
-  ];
+
+
+  List<String> _userNames = [];
+  List<String> _reviews = [];
   bool _showMoreReviews = false;
-  List<String> _userNames = ['alexiamae', 'liamthom..', 'emilygrace', 'lexijade', 'eljjaaaa'];
-  TextEditingController _reviewController = TextEditingController(); // 리뷰를 입력받을 컨트롤러
+
 
   bool boothSeating = true;
   bool limitedOutlets = true;
   bool moderateNoise = false;
   bool wifi = true;
+  TextEditingController _reviewController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -209,53 +416,81 @@ class _InfoScreenState extends State<InfoScreen> {
                   Row(
                     children: [
                       Text(_cafeData!.category),
-                      Text(' // '),
+                      Text('  //  '),
                       Text(_cafeData!.detail),
                     ]
                   ),
-                  SizedBox(height: 20),
                 ],
               ),
             ),
 
-        ElevatedButton(
-          onPressed: () {
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: Size(80, 70),
-            primary: _isChecked ? Colors.green : Colors.blue,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              _checkInText,
-              style: TextStyle(color: Colors.white),
+            Divider(),
+            SizedBox(height: 10),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                if (!_isChecked) {
+                  // Only show the congestion dialog when not checked in
+                  await _showCongestionDialog();
+                } else {
+                  await _showReviewDialog();
+                }
+                setState(() {
+                  _isChecked = !_isChecked; // 여기서 _isChecked를 true로 변경
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(350, 50),
+                primary: _isChecked ? Colors.green : Colors.blue,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  _isChecked ? 'Check Out' : 'Check In',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 10),
 
             Divider(),
 
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Recently Checked In',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 20),
-
-                  for (int i = 0; i < visibleReviews.length; i++) ...[
-                    buildProfile(_userNames[i], 'time', visibleReviews[i]),
-                    Divider(),
-                  ],
-                ],
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Recently Checked In',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-            ),
+              SizedBox(height: 20),
+
+              for (int i = 0; i < (visibleReviews.length > 3 && !_showMoreReviews ? 3 : visibleReviews.length); i++) ...[
+                buildProfile(_userNames[i], 'time', visibleReviews[i]),
+                SizedBox(height: 10),
+              ],
+
+              // See more 또는 See less 버튼 추가
+              if (_reviews.length > 3)
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _showMoreReviews = !_showMoreReviews;
+                    });
+                  },
+                  child: Text(_showMoreReviews ? 'See less' : 'See more'),
+                ),
+            ],
+          ),
+        ),
+
 
             Divider(),
 
@@ -350,7 +585,28 @@ class _InfoScreenState extends State<InfoScreen> {
     );
   }
 
-
+  Widget _buildCongestionRadioTile(String value, String label, Function(void Function()) setStateCallback) {
+    return RadioListTile<String>(
+      title:Row(
+        children: [
+        Text(label),
+        SizedBox(width: 10), // 이미지와 텍스트 사이의 간격 조절
+        Image.asset(
+          'assets/$value.png',
+          width: 10,  // 원하는 너비 설정
+          height: 10, // 원하는 높이 설정
+        ),
+        ],
+      ),
+      value: value,
+      groupValue: _selectedCongestion,
+      onChanged: (String? newValue) {
+        setStateCallback(() {
+          _selectedCongestion = newValue!;
+        });
+      },
+    );
+  }
   /* function */
   void _selectedTab(int index) {
     setState(() {
@@ -363,7 +619,15 @@ class _InfoScreenState extends State<InfoScreen> {
       _lastSelected = 'FAB: $index';
     });
   }
+  User? getCurrentUser() {
+    User? user = _auth.currentUser;
+    return user;
+  }
 
-
+// 현재 로그인한 사용자의 ID 가져오기
+  String? getCurrentUserId() {
+    User? user = _auth.currentUser;
+    return user?.uid;
+  }
 
 }
