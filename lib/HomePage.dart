@@ -1,9 +1,10 @@
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'CafeService.dart';
+import 'InfoScreen.dart';
 import 'SearchPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -42,17 +43,42 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<String> getUserRecentReviewCafe() async {
+    try{
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('user').doc(uid).get();
+
+      if(userSnapshot['reviews'] == null){
+        return '';
+      } else{
+        print(userSnapshot['reviews']);
+
+        String data = userSnapshot['reviews'].split('/')[1];
+
+        return data;
+      }
+
+    } catch (error) {
+      print('Error : $error');
+      return '';
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final CollectionReference _cafe = FirebaseFirestore.instance.collection('cafe');
     final CarouselController _controller = CarouselController();
 
+    final String imageUrl =
+        'https://firebasestorage.googleapis.com/v0/b/spotsfront.appspot.com/o/310_%EC%BB%A4.jpg?alt=media&token=9c58d924-97e5-4cb0-a0cc-857fccd5bba5';
+
     final List<Widget> carouselWidgets = [
       // 첫번째 컨텐츠 : find your spot!
       Container(
         padding: const EdgeInsets.all(20),
-        height: 195,
+        height: 220,
+        width: 350,
         // width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
@@ -69,9 +95,9 @@ class _HomePageState extends State<HomePage> {
               "work spot today!",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 25),
             const Text(
-              "Swipe for Recommend Places",
+              "Swipe for Recommend Places!",
               style: TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 10,),
@@ -79,32 +105,263 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
-      // 두 번째 컨텐츠 : 내가 가장 최근 체크인(리뷰)한 곳
-      Container(
+      // 두 번째 컨텐츠 : 내가 가장 최근 체크인(리뷰)한 곳 -> 일단 가장 많이 방문 한 곳으로 컨텐츠 변경함
+      getUserRecentReviewCafe() != ''?
+        Container(
+          padding: const EdgeInsets.all(15),
+          height: 220,
+          width: 350,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+          ),
+          child: Row(
+            children: [
+              const SizedBox(width: 10,),
+              const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Most",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    "Visited",
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600, color: Colors.blue),
+                  ),
+                  Text(
+                    "Spot",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+
+              Container(
+                margin: const EdgeInsets.only(left:20),
+                width: 150,
+                child: Stack(
+                  children: [
+                    // 이미지
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [BoxShadow(
+                              color: Colors.grey.withOpacity(0.7),
+                              spreadRadius: 0,
+                              blurRadius: 5.0,
+                              offset: Offset(0, 5)
+                          )
+                          ],
+                          image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: AssetImage('assets/coffeenie.jpg'),
+                          )
+                      ),
+                    ),
+
+                    // 별점 정보 - 1. 검은색 깃발 이미지
+                    const Positioned(
+                      top: 17,
+                      child: Image(image: AssetImage('assets/starMark.png'), width: 60, height: 30,),
+                    ),
+
+                    // 별점 정보 - 2. 별 이미지
+                    const Positioned(
+                      top: 25,
+                      left: 4,
+                      child: const Image(image: AssetImage('assets/star.png'),),
+                    ),
+
+                    // 별점 정보 - 3. 별점 text
+                    Positioned(
+                        top: 25,
+                        left: 20,
+                        child: Text('4.3', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),)
+                    ),
+
+                    //하얀색 컨테이너
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        alignment: Alignment.bottomLeft,
+                        height: 50,
+                        margin: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              bottomRight: Radius.circular(15),
+                              bottomLeft: Radius.circular(15),
+                            ),
+                            color: Colors.white,
+                            boxShadow: [BoxShadow(
+                                color: Colors.grey.withOpacity(0.7),
+                                spreadRadius: 0,
+                                blurRadius: 5.0,
+                                offset: Offset(0, 5)
+                            )
+                            ]
+                        ),
+                        child: Container( // 이름, 거리
+                          margin: const EdgeInsets.only(left: 10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                'COFFEE NIE',
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  color: Colors.black,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Text(
+                                '310 Bldg 1F',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                maxLines: 1,
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+
+            ],
+          ),
+        ):
+      Container(  // 리뷰 안 남겼으면 보여줄 위젯
         padding: const EdgeInsets.all(15),
-        height: 195,
-        // width: MediaQuery.of(context).size.width,
+        height: 220,
+        width: 350,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           color: Colors.white,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            const Text(
-              "두번째 컨텐츠",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            const SizedBox(width: 10,),
+            const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "Most",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                ),
+                Text(
+                  "Visited",
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600, color: Colors.blue),
+                ),
+                Text(
+                  "Spot",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                ),
+              ],
             ),
-            const Text(
-              "work spot today!",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+
+            Container(
+              margin: const EdgeInsets.only(left:20),
+              width: 150,
+              child: Stack(
+                children: [
+                  // 이미지
+                  Container(
+                    margin: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [BoxShadow(
+                            color: Colors.grey.withOpacity(0.7),
+                            spreadRadius: 0,
+                            blurRadius: 5.0,
+                            offset: Offset(0, 5)
+                        )
+                        ],
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: AssetImage('assets/coffeenie.jpg'),
+                        )
+                    ),
+                  ),
+
+                  // 별점 정보 - 1. 검은색 깃발 이미지
+                  const Positioned(
+                    top: 17,
+                    child: Image(image: AssetImage('assets/starMark.png'), width: 60, height: 30,),
+                  ),
+
+                  // 별점 정보 - 2. 별 이미지
+                  const Positioned(
+                    top: 25,
+                    left: 4,
+                    child: const Image(image: AssetImage('assets/star.png'),),
+                  ),
+
+                  // 별점 정보 - 3. 별점 text
+                  Positioned(
+                      top: 25,
+                      left: 20,
+                      child: Text('4.3', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),)
+                  ),
+
+                  //하얀색 컨테이너
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      alignment: Alignment.bottomLeft,
+                      height: 50,
+                      margin: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15),
+                          ),
+                          color: Colors.white,
+                          boxShadow: [BoxShadow(
+                              color: Colors.grey.withOpacity(0.7),
+                              spreadRadius: 0,
+                              blurRadius: 5.0,
+                              offset: Offset(0, 5)
+                          )
+                          ]
+                      ),
+                      child: Container( // 이름, 거리
+                        margin: const EdgeInsets.only(left: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'COFFEE NIE',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                color: Colors.black,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              '310 Bldg 1F',
+                              style: TextStyle(
+                                fontSize: 10,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              maxLines: 1,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
-            const SizedBox(height: 15),
-            const Text(
-              "Swipe for Recommend Places",
-              style: TextStyle(fontSize: 17),
-            ),
-            const SizedBox(height: 10,),
+
           ],
         ),
       ),
@@ -112,32 +369,134 @@ class _HomePageState extends State<HomePage> {
       // 세 번째 컨텐츠 : 리뷰가 가장 많은 곳
       Container(
         padding: const EdgeInsets.all(15),
-        height: 195,
-        // width: MediaQuery.of(context).size.width,
+        height: 220,
+        width: 350,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           color: Colors.white,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            const Text(
-              "세번째 컨텐츠",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            const SizedBox(width: 10,),
+            const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "Highest",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                ),
+                Text(
+                  "Rated",
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600, color: Colors.blue),
+                ),
+                Text(
+                  "Spot",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                ),
+              ],
             ),
-            const Text(
-              "work spot today!",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+
+            Container(
+              margin: const EdgeInsets.only(left:20),
+              width: 150,
+              child: Stack(
+                children: [
+                  // 이미지
+                  Container(
+                    margin: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [BoxShadow(
+                            color: Colors.grey.withOpacity(0.7),
+                            spreadRadius: 0,
+                            blurRadius: 5.0,
+                            offset: Offset(0, 5)
+                        )
+                        ],
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: AssetImage('assets/208bldg6f.png'),
+                        )
+                    ),
+                  ),
+
+                  // 별점 정보 - 1. 검은색 깃발 이미지
+                  const Positioned(
+                    top: 17,
+                    child: Image(image: AssetImage('assets/starMark.png'), width: 60, height: 30,),
+                  ),
+
+                  // 별점 정보 - 2. 별 이미지
+                  const Positioned(
+                    top: 25,
+                    left: 4,
+                    child: const Image(image: AssetImage('assets/star.png'),),
+                  ),
+
+                  // 별점 정보 - 3. 별점 text
+                  Positioned(
+                      top: 25,
+                      left: 20,
+                      child: Text('4.7', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),)
+                  ),
+
+                  //하얀색 컨테이너
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      alignment: Alignment.bottomLeft,
+                      height: 50,
+                      margin: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15),
+                          ),
+                          color: Colors.white,
+                          boxShadow: [BoxShadow(
+                              color: Colors.grey.withOpacity(0.7),
+                              spreadRadius: 0,
+                              blurRadius: 5.0,
+                              offset: Offset(0, 5)
+                          )
+                          ]
+                      ),
+                      child: Container(// 이름, 거리
+                        width: 150,
+                        margin: const EdgeInsets.only(left: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              '208 Bldg 6F PC Lab',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                color: Colors.black,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              'PC Lab',
+                              style: TextStyle(
+                                fontSize: 10,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              maxLines: 1,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
-            const SizedBox(height: 15),
-            const Text(
-              "Swipe for Recommend Places",
-              style: TextStyle(fontSize: 17),
-            ),
-            const SizedBox(height: 10,),
+
           ],
         ),
-      ),
+      )
     ];
 
     Widget sliderWidget(){
@@ -211,7 +570,7 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               children: [
                 const CircleAvatar(
-                  backgroundImage: AssetImage('assets/cafe1.png'),
+                  backgroundImage: AssetImage('assets/profile.jpg'),
                 ),
                 const SizedBox(width: 7),
                 Row(
@@ -221,9 +580,12 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text('$userName!',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis,
+                    Container(
+                      width: 73,
+                      child: Text('$userName!',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -238,7 +600,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.more_horiz),
+              icon: const Icon(Icons.door_back_door_outlined),
               onPressed: () {
                 FirebaseAuth.instance.signOut();
               },
@@ -280,13 +642,13 @@ class _HomePageState extends State<HomePage> {
                   // 2. stack widget
                   Column(
                     children: [
-                      SizedBox(height: 230,
-                      child: Stack(
-                        children: [
-                          sliderWidget(),
-                          sliderIndicator(),
-                        ],
-                      ),)
+                      SizedBox(height: 240,
+                        child: Stack(
+                          children: [
+                            sliderWidget(),
+                            sliderIndicator(),
+                          ],
+                        ),)
                     ],
                   ),
 
@@ -317,7 +679,7 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: _selectedCategory == 0? Colors.deepPurple : Colors.blue[50],
+                                  backgroundColor: _selectedCategory == 0? Colors.blue : Colors.blue[50],
                                   minimumSize: Size.zero,
                                   padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -333,7 +695,7 @@ class _HomePageState extends State<HomePage> {
                               const SizedBox(width: 10),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: _selectedCategory == 1? Colors.deepPurple : Colors.blue[50],
+                                  backgroundColor: _selectedCategory == 1? Colors.blue : Colors.blue[50],
                                   minimumSize: Size.zero,
                                   padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -374,7 +736,7 @@ class _HomePageState extends State<HomePage> {
                                     final Cafe cafe = cafes[index];
                                     return GestureDetector(
                                       onTap: () {
-                                        print('카페 이름을 resultPage로 전달하기');
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => InfoScreen(cafe.name!)));
                                       },
                                       child:
                                       Stack(
@@ -383,7 +745,7 @@ class _HomePageState extends State<HomePage> {
                                           Container(
                                             margin: EdgeInsets.all(5),
                                             decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(20),
+                                                borderRadius: BorderRadius.circular(15),
                                                 boxShadow: [BoxShadow(
                                                     color: Colors.grey.withOpacity(0.7),
                                                     spreadRadius: 0,
@@ -428,7 +790,9 @@ class _HomePageState extends State<HomePage> {
                                               margin: EdgeInsets.all(5),
                                               decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.only(
-                                                      bottomRight: Radius.circular(20)),
+                                                    bottomRight: Radius.circular(15),
+                                                    bottomLeft: Radius.circular(15),
+                                                  ),
                                                   color: Colors.white,
                                                   boxShadow: [BoxShadow(
                                                       color: Colors.grey.withOpacity(0.7),
