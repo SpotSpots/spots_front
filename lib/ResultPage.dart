@@ -1,57 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:spotsfront/InfoScreen.dart';
-
-class Cafe {
-  Cafe({
-    this.name,
-    this.amenNum,
-    this.congestion,
-    this.image,
-    this.rating,
-    this.reference,
-  });
-
-  String? name;
-  String? amenNum;
-  String? congestion;
-  String? image;
-  String? rating;
-  DocumentReference? reference;
-
-  Cafe.fromJson(dynamic json,this.reference){
-    name = json['name'];
-    amenNum = json['amenNum'];
-    congestion = json['congestion'];
-    image = json['image'];
-    rating = json['rating'];
-  }
-  Cafe.fromSnapShot(DocumentSnapshot<Map<String, dynamic>> snapshot)
-      : this.fromJson(snapshot.data(),snapshot.reference);
-
-  Cafe.fromQuerySnapshot(
-      QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
-      : this.fromJson(snapshot.data(),snapshot.reference);
-}
-
-
-class CafeService {
-  Future<List<Cafe>> getCafes() async {
-    CollectionReference<Map<String, dynamic>> collectionReference =
-    FirebaseFirestore.instance.collection('cafe');
-    QuerySnapshot<Map<String, dynamic>> querySnapshot =
-    await collectionReference.get();
-    List<Cafe> cafes = [];
-    for (var doc in querySnapshot.docs) {
-      Cafe cafe = Cafe.fromQuerySnapshot(doc);
-      cafes.add(cafe);
-    }
-    return cafes;
-  }
-}
+import 'CafeService.dart';
 
 class ResultPage extends StatefulWidget {
-  const ResultPage({Key? key}) : super(key: key);
+  const ResultPage(
+      {super.key,
+    required this.searchKeyword, required this.cafeQuery});
+
+  final String searchKeyword;
+  final Future<List<Cafe>> cafeQuery;
 
   @override
   State<ResultPage> createState() => _ResultPageState();
@@ -167,7 +124,7 @@ class _ResultPageState extends State<ResultPage> {
             SizedBox(height: 25,),
             Expanded(
               child: FutureBuilder<List<Cafe>>(
-                  future: CafeService().getCafes(),
+                  future: widget.cafeQuery,
                   builder: (context, snapshot){
                     if(snapshot.hasData) {
                       List<Cafe> cafes = snapshot.data!;
