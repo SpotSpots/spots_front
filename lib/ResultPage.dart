@@ -128,10 +128,10 @@ class _ResultPageState extends State<ResultPage> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffE9E9E9),
+      backgroundColor: const Color(0xffD5EAF7),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Color(0xffE9E9E9),
+        backgroundColor: const Color(0xffD5EAF7),
         title: Text('Results', style: TextStyle(fontWeight: FontWeight.bold),),
         leading: IconButton(
             icon: Icon(Icons.navigate_before, size: 28),
