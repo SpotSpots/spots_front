@@ -19,15 +19,15 @@ class ResultPage extends StatefulWidget {
 
 class _ResultPageState extends State<ResultPage> {
 
-  late bool _isFavorite;
+  List<bool> _isFavorite = List.filled(11, false); // 이 부분을 userFavorite이랑 연동해서 초기화 되도록 수정!
 
   @override
   void initState(){
     super.initState();
-    _isFavorite = false;
+    print(_isFavorite);
   }
 
-  Future<void> addToUserFavorites(String cafeName) async {
+  Future<void> addToUserFavorites(String cafeName, int i) async {
     print("addToUserFavorites " + cafeName); // ok
     try {
       // 현재 사용자 인증 상태 확인
@@ -73,7 +73,7 @@ class _ResultPageState extends State<ResultPage> {
           // Toggle the favorite state
           setState(() {
             //cafe.isFavorite = !cafe.isFavorite;
-            _isFavorite = userFavorites.contains(cafeReference);
+            _isFavorite[i] = userFavorites.contains(cafeReference);
           });
 
           print('Cafe favorite status updated successfully.');
@@ -246,13 +246,14 @@ class _ResultPageState extends State<ResultPage> {
                                               ),
                                               child: IconButton(
                                                 icon: Icon(
-                                                  _isFavorite
+                                                  _isFavorite[i]
                                                       ? Icons.favorite
                                                       : Icons.favorite_border,
-                                                  color: _isFavorite ? Colors.red : Colors.grey,
+                                                  color: _isFavorite[i] ? Colors.red : Colors.red,
+                                                  size: 20,
                                                 ),
                                                 onPressed: () async {
-                                                  addToUserFavorites(cafe.name!);
+                                                  addToUserFavorites(cafe.name!, i);
                                                 },
                                               ),
                                             ),
