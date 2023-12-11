@@ -39,10 +39,10 @@ dependencies:
   firebase_core: ^2.24.0
   firebase_auth: ^4.15.0
   modal_progress_hud_nsn: ^0.4.0
-  cloud_firestore: ^4.13.3
+  cloud_firestore: ^4.13.5
   firebase_database: ^10.3.8
   carousel_slider: ^4.2.1
-  provider: ^6.1.1
+
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +81,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
+  fonts:
+    - family: Nunito-Black
+      fonts:
+        - asset: assets/Nunito-Black.ttf
   # fonts:
   #   - family: Schyler
   #     fonts:
