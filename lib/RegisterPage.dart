@@ -108,8 +108,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           if (newUser.user != null) {
                             _formKey.currentState!.reset();
                             if (!mounted) return;
-                            Navigator.push(context, MaterialPageRoute(
-                                builder: (context) => const SuccessRegisterPage()));
+                            Navigator.popUntil(context, (route) => route.isFirst);
                           }
                           setState(() {
                             saving = false;
