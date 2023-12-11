@@ -13,9 +13,10 @@ class _SavedPageState extends State<SavedPage> {
   String uid = FirebaseAuth.instance.currentUser!.uid;
   List<DocumentReference> userFavorites = [];
 
+
   @override
   void initState() {
-    print("init state");
+    print("init state no???");
     super.initState();
     // SavedPage에 들어올 때 초기 데이터 로드
     loadUserFavorites();
@@ -36,8 +37,17 @@ class _SavedPageState extends State<SavedPage> {
     }
   }
 
+  // 새로운 데이터를 로드하는 메서드
+  Future<void> reloadUserData() async {
+    // 데이터를 다시 불러오는 로직을 수행
+    await loadUserFavorites();
+    // setState를 호출하여 UI 갱신
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SavedPage()));
     return Scaffold(
       backgroundColor: Color(0xffE9E9E9),
       appBar: AppBar(
@@ -55,152 +65,154 @@ class _SavedPageState extends State<SavedPage> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20,),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Cafe Spots',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 20,),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  'Cafe Spots',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 10,),
-          FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance.collection('user').doc(uid).get(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                final userDocument = snapshot.data;
-                if (userDocument != null) {
-                  final userFavoriteReferences = List<DocumentReference>.from(userDocument['userFavorite']);
+            SizedBox(height: 10,),
+            FutureBuilder<DocumentSnapshot>(
+              future: FirebaseFirestore.instance.collection('user').doc(uid).get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  final userDocument = snapshot.data;
+                  if (userDocument != null) {
+                    final userFavoriteReferences = List<DocumentReference>.from(userDocument['userFavorite']);
 
-                  if (userFavoriteReferences.isNotEmpty) {
-                    final userFavoriteDataFutures = userFavoriteReferences.map((reference) => reference.get());
-                    return FutureBuilder<List<DocumentSnapshot>>(
-                      future: Future.wait(userFavoriteDataFutures),
-                      builder: (context, userFavoriteSnapshots) {
-                        if (userFavoriteSnapshots.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        } else if (userFavoriteSnapshots.hasError) {
-                          return Text('Error: ${userFavoriteSnapshots.error}');
-                        } else {
-                          final userFavoriteData = userFavoriteSnapshots.data;
-                          if (userFavoriteData != null) {
-                            final cafeCards = userFavoriteData
-                                .where((favoriteData) => favoriteData['category'] == 'cafe')
-                                .map<Widget>((favoriteData) {
-                              final name = favoriteData['name'];
-                              final cafeReference = favoriteData.reference;
+                    if (userFavoriteReferences.isNotEmpty) {
+                      final userFavoriteDataFutures = userFavoriteReferences.map((reference) => reference.get());
+                      return FutureBuilder<List<DocumentSnapshot>>(
+                        future: Future.wait(userFavoriteDataFutures),
+                        builder: (context, userFavoriteSnapshots) {
+                          if (userFavoriteSnapshots.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (userFavoriteSnapshots.hasError) {
+                            return Text('Error: ${userFavoriteSnapshots.error}');
+                          } else {
+                            final userFavoriteData = userFavoriteSnapshots.data;
+                            if (userFavoriteData != null) {
+                              final cafeCards = userFavoriteData
+                                  .where((favoriteData) => favoriteData['category'] == 'cafe')
+                                  .map<Widget>((favoriteData) {
+                                final name = favoriteData['name'];
+                                final cafeReference = favoriteData.reference;
 
-                              return buildCard('Cafe Spots', name, () {
-                                removeFromFavorites('cafe', name, cafeReference);
-                              });
-                            }).toList();
+                                return buildCard('Cafe Spots', name, () {
+                                  removeFromFavorites('cafe', name, cafeReference);
+                                });
+                              }).toList();
 
-                            return Column(
-                              children: [
-                                SizedBox(
-                                  height: 200,
-                                  child: ListView(
-                                    scrollDirection: Axis.horizontal,
-                                    padding: EdgeInsets.symmetric(horizontal: 16),
-                                    children: cafeCards,
+                              return Column(
+                                children: [
+                                  SizedBox(
+                                    height: 200,
+                                    child: ListView(
+                                      scrollDirection: Axis.horizontal,
+                                      padding: EdgeInsets.symmetric(horizontal: 16),
+                                      children: cafeCards,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
+                                ],
+                              );
+                            }
                           }
-                        }
-                        return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
-                      },
-                    );
+                          return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
+                        },
+                      );
+                    }
                   }
+
+                  return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
                 }
+              },
+            ),
 
-                return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
-              }
-            },
-          ),
-
-          const SizedBox(height: 20,),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Study Spots',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const SizedBox(height: 20,),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  'Study Spots',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 10,),
-          FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance.collection('user').doc(uid).get(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                final userDocument = snapshot.data;
-                if (userDocument != null) {
-                  final userFavoriteReferences = List<DocumentReference>.from(userDocument['userFavorite']);
+            SizedBox(height: 10,),
+            FutureBuilder<DocumentSnapshot>(
+              future: FirebaseFirestore.instance.collection('user').doc(uid).get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  final userDocument = snapshot.data;
+                  if (userDocument != null) {
+                    final userFavoriteReferences = List<DocumentReference>.from(userDocument['userFavorite']);
 
-                  if (userFavoriteReferences.isNotEmpty) {
-                    final userFavoriteDataFutures = userFavoriteReferences.map((reference) => reference.get());
-                    return FutureBuilder<List<DocumentSnapshot>>(
-                      future: Future.wait(userFavoriteDataFutures),
-                      builder: (context, userFavoriteSnapshots) {
-                        if (userFavoriteSnapshots.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        } else if (userFavoriteSnapshots.hasError) {
-                          return Text('Error: ${userFavoriteSnapshots.error}');
-                        } else {
-                          final userFavoriteData = userFavoriteSnapshots.data;
-                          if (userFavoriteData != null) {
-                            final studyCards = userFavoriteData
-                                .where((favoriteData) => favoriteData['category'] == 'studyspot')
-                                .map<Widget>((favoriteData) {
-                              final name = favoriteData['name'];
+                    if (userFavoriteReferences.isNotEmpty) {
+                      final userFavoriteDataFutures = userFavoriteReferences.map((reference) => reference.get());
+                      return FutureBuilder<List<DocumentSnapshot>>(
+                        future: Future.wait(userFavoriteDataFutures),
+                        builder: (context, userFavoriteSnapshots) {
+                          if (userFavoriteSnapshots.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (userFavoriteSnapshots.hasError) {
+                            return Text('Error: ${userFavoriteSnapshots.error}');
+                          } else {
+                            final userFavoriteData = userFavoriteSnapshots.data;
+                            if (userFavoriteData != null) {
+                              final studyCards = userFavoriteData
+                                  .where((favoriteData) => favoriteData['category'] == 'studyspot')
+                                  .map<Widget>((favoriteData) {
+                                final name = favoriteData['name'];
 
-                              final cafeReference = favoriteData.reference;
-                              return buildCard('Study Spots', name, () {
-                                removeFromFavorites('studyspot', name, cafeReference);
-                              });
-                            }).toList();
+                                final cafeReference = favoriteData.reference;
+                                return buildCard('Study Spots', name, () {
+                                  removeFromFavorites('studyspot', name, cafeReference);
+                                });
+                              }).toList();
 
-                            return Column(
-                              children: [
-                                SizedBox(
-                                  height: 200,
-                                  child: ListView(
-                                    scrollDirection: Axis.horizontal,
-                                    padding: EdgeInsets.symmetric(horizontal: 16),
-                                    children: studyCards,
+                              return Column(
+                                children: [
+                                  SizedBox(
+                                    height: 200,
+                                    child: ListView(
+                                      scrollDirection: Axis.horizontal,
+                                      padding: EdgeInsets.symmetric(horizontal: 16),
+                                      children: studyCards,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
+                                ],
+                              );
+                            }
                           }
-                        }
-                        return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
-                      },
-                    );
+                          return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
+                        },
+                      );
+                    }
                   }
-                }
 
-                return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
-              }
-            },
-          ),
-        ],
+                  return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
