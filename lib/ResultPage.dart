@@ -16,7 +16,7 @@ class ResultPage extends StatefulWidget {
   State<ResultPage> createState() => _ResultPageState();
 }
 
-List<bool> _isFavorite = [];
+List<bool> _isFavorite = List.filled(11, false);
 
 Future<void> initUserFavorites(String cafeName, int i) async {
   print("addToUserFavorites " + cafeName); // ok
