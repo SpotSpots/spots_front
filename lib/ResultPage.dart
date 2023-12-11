@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:spotsfront/InfoScreen.dart';
 import 'CafeService.dart';
@@ -17,10 +19,71 @@ class ResultPage extends StatefulWidget {
 
 class _ResultPageState extends State<ResultPage> {
 
+  late bool _isFavorite;
+
   @override
   void initState(){
     super.initState();
+    _isFavorite = false;
   }
+
+  Future<void> addToUserFavorites(String cafeName) async {
+    print("addToUserFavorites " + cafeName); // ok
+    try {
+      // 현재 사용자 인증 상태 확인
+      User? user = FirebaseAuth.instance.currentUser;
+      print(user?.uid); // helloworld1로 로그인 함
+      print(cafeName);
+
+      if (user != null) {
+        String uid = user.uid;
+
+        // 1. cafeInfo로 cafe collection을 검색
+        QuerySnapshot cafeQuery = await FirebaseFirestore.instance
+            .collection('cafe')
+            .where('name', isEqualTo: cafeName)
+            .get();
+
+        if (cafeQuery.docs.isNotEmpty) {
+          // 2. uid로 user collection을 검색
+          DocumentReference userReference =
+          FirebaseFirestore.instance.collection('user').doc(uid);
+
+          // 3. uid 검색 결과 나온 document의 하위 필드인 userFavorite에 cafeInfo로 검색한 cafe를 reference 하도록 설정
+          DocumentReference cafeReference = cafeQuery.docs.first.reference;
+
+          // Get the current user document
+          DocumentSnapshot userSnapshot = await userReference.get();
+
+          // Initialize userFavorite field as an empty list if it doesn't exist
+          List<dynamic> userFavorites = userSnapshot['userFavorite'] ?? [];
+
+          // Check if cafeReference already exists in userFavorites
+          if (userFavorites.contains(cafeReference)) {
+            // Remove cafe reference from userFavorite list
+            userFavorites.remove(cafeReference);
+          } else {
+            // Add cafe reference to userFavorite list
+            userFavorites.add(cafeReference);
+          }
+
+          // Update userFavorite field in the user document
+          await userReference.update({'userFavorite': userFavorites});
+
+          // Toggle the favorite state
+          setState(() {
+            //cafe.isFavorite = !cafe.isFavorite;
+            _isFavorite = userFavorites.contains(cafeReference);
+          });
+
+          print('Cafe favorite status updated successfully.');
+        }
+      }
+    } catch (error) {
+      print('Error adding cafe to user favorites: $error');
+    }
+  }
+
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,8 +245,15 @@ class _ResultPageState extends State<ResultPage> {
                                                 color: Colors.white,
                                               ),
                                               child: IconButton(
-                                                icon: Icon(Icons.favorite_border, color: Colors.red, size: 20,),
-                                                onPressed: () {},
+                                                icon: Icon(
+                                                  _isFavorite
+                                                      ? Icons.favorite
+                                                      : Icons.favorite_border,
+                                                  color: _isFavorite ? Colors.red : Colors.grey,
+                                                ),
+                                                onPressed: () async {
+                                                  addToUserFavorites(cafe.name!);
+                                                },
                                               ),
                                             ),
                                           ),
