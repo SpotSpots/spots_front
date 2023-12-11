@@ -66,6 +66,7 @@ class _HomePageState extends State<HomePage> {
                     const Text(
                       'Hello, ',
                       style: TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text('$userName!',
                       style: const TextStyle(fontWeight: FontWeight.bold),
