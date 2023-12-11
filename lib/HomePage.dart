@@ -96,9 +96,9 @@ class _HomePageState extends State<HomePage> {
               "work spot today!",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 20),
             const Text(
-              "Swipe for Recommend Places!",
+              "Swipe for Searching Spots!",
               style: TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 10,),
@@ -207,14 +207,15 @@ class _HomePageState extends State<HomePage> {
                               ]
                           ),
                           child: Container( // 이름, 거리
+                            width: 150,
                             margin: const EdgeInsets.only(left: 10),
-                            child: Column(
+                            child: const Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Text(
                                   'COFFEE NIE',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 17,
                                     color: Colors.black,
                                     overflow: TextOverflow.ellipsis,
@@ -340,6 +341,7 @@ class _HomePageState extends State<HomePage> {
                             ]
                         ),
                         child: Container( // 이름, 거리
+                          width: 120,
                           margin: const EdgeInsets.only(left: 10),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -476,7 +478,7 @@ class _HomePageState extends State<HomePage> {
                             ]
                         ),
                         child: Container(// 이름, 거리
-                          width: 150,
+                          width: 120,
                           margin: const EdgeInsets.only(left: 10),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -566,12 +568,12 @@ class _HomePageState extends State<HomePage> {
     // });
 
     return Scaffold(
-      backgroundColor: const Color(0xffE9E9E9),
+      backgroundColor: const Color(0xffD5EAF7),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: AppBar(
           centerTitle: true,
-          backgroundColor: const Color(0xffE9E9E9),
+          backgroundColor: const Color(0xffD5EAF7),
           leadingWidth: 200,
           leading: Container(
             width: 200,
@@ -584,7 +586,7 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               children: [
                 const CircleAvatar(
-                  backgroundImage: AssetImage('assets/profile.jpg'),
+                  backgroundImage: AssetImage('assets/person.jpg'),
                 ),
                 const SizedBox(width: 7),
                 Row(
@@ -595,7 +597,7 @@ class _HomePageState extends State<HomePage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Container(
-                      width: 73,
+                      width: 68,
                       child: Text('$userName!',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                         overflow: TextOverflow.ellipsis,
