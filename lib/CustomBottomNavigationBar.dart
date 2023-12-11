@@ -11,8 +11,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return FABBottomAppBar(
       centerItemText: 'Explore',
-      color: Colors.blue,
-      selectedColor: Colors.red,
+      color: Colors.black54,
+      selectedColor: Colors.blue,
       notchedShape: CircularNotchedRectangle(),
       onTabSelected: (index) => onSelectTab(
         TabItem.values[index],
