@@ -109,8 +109,10 @@ class _SavedPageState extends State<SavedPage> {
                                   .map<Widget>((favoriteData) {
                                 final name = favoriteData['name'];
                                 final cafeReference = favoriteData.reference;
+                                final cafeImage = favoriteData.get('image'); // 이미지 URL을 가져옴
+                                print("checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk" + cafeImage);
 
-                                return buildCard('Cafe Spots', name, () {
+                                return buildCard('Cafe Spots', name, cafeImage, () {
                                   removeFromFavorites('cafe', name, cafeReference);
                                 });
                               }).toList();
@@ -119,12 +121,22 @@ class _SavedPageState extends State<SavedPage> {
                                 children: [
                                   SizedBox(
                                     height: 200,
-                                    child: ListView(
+                                    child: ListView.builder(
                                       scrollDirection: Axis.horizontal,
                                       padding: EdgeInsets.symmetric(horizontal: 16),
-                                      children: cafeCards,
+                                      // children: cafeCards,
+                                      itemCount: cafeCards.length,
+                                      itemBuilder: (BuildContext context, int index) {
+                                        return Row(
+                                          children: [
+                                            cafeCards[index],
+                                            SizedBox(width: 15), // 카드들 사이의 간격을 조절
+                                          ],
+                                        );
+                                      },
                                     ),
                                   ),
+                                  SizedBox(width: 20),
                                 ],
                               );
                             }
@@ -180,9 +192,10 @@ class _SavedPageState extends State<SavedPage> {
                                   .where((favoriteData) => favoriteData['category'] == 'studyspot')
                                   .map<Widget>((favoriteData) {
                                 final name = favoriteData['name'];
-
                                 final cafeReference = favoriteData.reference;
-                                return buildCard('Study Spots', name, () {
+                                final cafeImage = favoriteData.get('image'); // 이미지 URL을 가져옴
+                                print("checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk" + cafeImage);
+                                return buildCard('Study Spots', name, cafeImage, () {
                                   removeFromFavorites('studyspot', name, cafeReference);
                                 });
                               }).toList();
@@ -191,10 +204,19 @@ class _SavedPageState extends State<SavedPage> {
                                 children: [
                                   SizedBox(
                                     height: 200,
-                                    child: ListView(
+                                    child: ListView.builder(
                                       scrollDirection: Axis.horizontal,
                                       padding: EdgeInsets.symmetric(horizontal: 16),
-                                      children: studyCards,
+                                      //children: studyCards,
+                                      itemCount: studyCards.length,
+                                      itemBuilder: (BuildContext context, int index) {
+                                        return Row(
+                                          children: [
+                                            studyCards[index],
+                                            SizedBox(width: 15), // 카드들 사이의 간격을 조절
+                                          ],
+                                        );
+                                      },
                                     ),
                                   ),
                                 ],
@@ -263,7 +285,7 @@ class _SavedPageState extends State<SavedPage> {
   // }
 }
 
-Widget buildCard(String category, String name, VoidCallback onTap) {
+Widget buildCard(String category, String name, String imageUrl, VoidCallback onTap) {
   return Container(
     width: 150,
     height: 210,
@@ -285,9 +307,14 @@ Widget buildCard(String category, String name, VoidCallback onTap) {
                 height: 150,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16.0),
-                  child: Image.asset(
-                    'assets/cafe1.png',
-                    fit: BoxFit.fitHeight,
+                  // child: Image.asset(
+                  //   'assets/cafe1.png',
+                  //   fit: BoxFit.fitHeight,
+                  // ),
+                  child: Image( // 카페 이미지 : cafe/image
+                      fit: BoxFit.cover,
+                      image: NetworkImage(imageUrl),
+                      width: 380
                   ),
                 ),
               ),
