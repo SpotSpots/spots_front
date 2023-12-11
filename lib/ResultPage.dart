@@ -16,10 +16,51 @@ class ResultPage extends StatefulWidget {
   State<ResultPage> createState() => _ResultPageState();
 }
 
+List<bool> _isFavorite = [];
+
+Future<void> initUserFavorites(String cafeName, int i) async {
+  print("addToUserFavorites " + cafeName); // ok
+  try {
+    // 현재 사용자 인증 상태 확인
+    User? user = FirebaseAuth.instance.currentUser;
+    print(user?.uid); // helloworld1로 로그인 함
+    print(cafeName);
+
+    if (user != null) {
+      String uid = user.uid;
+
+      // 1. cafeInfo로 cafe collection을 검색
+      QuerySnapshot cafeQuery = await FirebaseFirestore.instance
+          .collection('cafe')
+          .where('name', isEqualTo: cafeName)
+          .get();
+
+      if (cafeQuery.docs.isNotEmpty) {
+        // 2. uid로 user collection을 검색
+        DocumentReference userReference =
+        FirebaseFirestore.instance.collection('user').doc(uid);
+
+        // 3. uid 검색 결과 나온 document의 하위 필드인 userFavorite에 cafeInfo로 검색한 cafe를 reference 하도록 설정
+        DocumentReference cafeReference = cafeQuery.docs.first.reference;
+
+        // Get the current user document
+        DocumentSnapshot userSnapshot = await userReference.get();
+
+        // Initialize userFavorite field as an empty list if it doesn't exist
+        List<dynamic> userFavorites = userSnapshot['userFavorite'] ?? [];
+
+        // Toggle the favorite state
+        _isFavorite[i] = userFavorites.contains(cafeReference);
+
+        print('Cafe favorite status updated successfully.');
+      }
+    }
+  } catch (error) {
+    print('Error adding cafe to user favorites: $error');
+  }
+}
 
 class _ResultPageState extends State<ResultPage> {
-
-  List<bool> _isFavorite = List.filled(11, false); // 이 부분을 userFavorite이랑 연동해서 초기화 되도록 수정!
 
   @override
   void initState(){
@@ -195,6 +236,7 @@ class _ResultPageState extends State<ResultPage> {
                           itemCount: cafes.length,
                           itemBuilder: (BuildContext context, int i){
                             Cafe cafe = cafes[i];
+                            initUserFavorites(cafe.name!, i);
                             return GestureDetector(
                               onTap: (){
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => InfoScreen(cafe.name!)));
