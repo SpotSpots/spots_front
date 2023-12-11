@@ -140,7 +140,7 @@ class _SavedPageState extends State<SavedPage> {
               },
             ),
 
-            const SizedBox(height: 20,),
+            //const SizedBox(height: 20,),
             const Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -313,7 +313,8 @@ Widget buildCard(String category, String name, VoidCallback onTap) {
         ),
         Text(
           name,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+
         ),
       ],
     ),
