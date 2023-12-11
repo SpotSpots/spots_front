@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,6 +16,8 @@ class _HomePageState extends State<HomePage> {
   String userName = '';
   String spotName = '';
   String spotDetail = '';
+
+  int _current = 0;
 
   @override
   void initState(){
@@ -36,10 +39,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> fetchSpotsByCategory(String category) async {
-    final CollectionReference _cafe = FirebaseFirestore.instance.collection('cafe');
+    final CollectionReference _cafe = FirebaseFirestore.instance.collection(
+        'cafe');
 
     try {
-      QuerySnapshot cafeSnapshot = await _cafe.where('category', isEqualTo: category).get();
+      QuerySnapshot cafeSnapshot = await _cafe.where(
+          'category', isEqualTo: category).get();
 
       if (cafeSnapshot.docs.isNotEmpty) {
         // cafeSnapshot.docs에는 category가 'cafe'인 문서들이 들어있습니다.
@@ -65,7 +70,145 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final CollectionReference _cafe = FirebaseFirestore.instance.collection('cafe');
+    final CarouselController _controller = CarouselController();
 
+    final List<Widget> carouselWidgets = [
+      // 첫번째 컨텐츠 : find your spot!
+      Container(
+        padding: const EdgeInsets.all(20),
+        height: 195,
+        // width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.white,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Seek the perfect",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            const Text(
+              "work spot today!",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 15),
+            const Text(
+              "Swipe for Recommend Places",
+              style: TextStyle(fontSize: 17),
+            ),
+            const SizedBox(height: 10,),
+          ],
+        ),
+      ),
+
+      // 두 번째 컨텐츠 : 내가 가장 최근 체크인(리뷰)한 곳
+      Container(
+        padding: const EdgeInsets.all(15),
+        height: 195,
+        // width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.white,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "두번째 컨텐츠",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            const Text(
+              "work spot today!",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 15),
+            const Text(
+              "Swipe for Recommend Places",
+              style: TextStyle(fontSize: 17),
+            ),
+            const SizedBox(height: 10,),
+          ],
+        ),
+      ),
+
+      // 세 번째 컨텐츠 : 리뷰가 가장 많은 곳
+      Container(
+        padding: const EdgeInsets.all(15),
+        height: 195,
+        // width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.white,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "세번째 컨텐츠",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            const Text(
+              "work spot today!",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 15),
+            const Text(
+              "Swipe for Recommend Places",
+              style: TextStyle(fontSize: 17),
+            ),
+            const SizedBox(height: 10,),
+          ],
+        ),
+      ),
+    ];
+
+    Widget sliderWidget(){
+      return CarouselSlider(
+        carouselController: _controller,
+        options: CarouselOptions(
+            aspectRatio: 2.0,
+            enlargeCenterPage: true,
+            scrollDirection: Axis.horizontal,
+            autoPlay: true,
+            onPageChanged: (index, reason){
+              setState(() {
+                _current = index;
+                print('current는 $_current 입니다!!!!!!!!!!!!');
+              });
+            }
+        ),
+        items: carouselWidgets,
+      );
+    }
+
+    Widget sliderIndicator(){
+      return Align(
+        alignment: Alignment.bottomCenter,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(carouselWidgets.length, (index) {
+            return GestureDetector(
+              onTap: (){
+                _controller.animateToPage(index);
+                print('$index 누름!!!!!!!!!!!!!!!!');
+              },
+              child: Container(
+                width: 10.0,
+                height: 10.0,
+                margin: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: index == _current
+                        ? Colors.indigo
+                        : Colors.black.withOpacity(0.5)),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    }
     // DatabaseReference starCountRef =
     // FirebaseDatabase.instance.ref('posts/$postId/starCount');
     // starCountRef.onValue.listen((DatabaseEvent event) {
@@ -158,85 +301,19 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 20,),
                   // 2. stack widget
-                  Container(
-                    padding: const EdgeInsets.all(15),
-                    height: 195,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Seeking the perfect",
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                        ),
-                        const Text(
-                          "work spot today?",
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 5),
-                        const Text(
-                          "Complete the Questionnaire!",
-                          style: TextStyle(fontSize: 17),
-                        ),
-                        const SizedBox(height: 10,),
-                        SizedBox(
-                          width: 200,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size.zero,
-                              padding: const EdgeInsets.all(10),
-                            ),
-                            onPressed: () {
-                              print('설문 클릭');
-                            },
-                            child: const Text("Questionnaire"),
-                          ),
-                        ),
-                      ],
-                    ),
+                  Column(
+                    children: [
+                      SizedBox(height: 230,
+                      child: Stack(
+                        children: [
+                          sliderWidget(),
+                          sliderIndicator(),
+                        ],
+                      ),)
+                    ],
                   ),
-                  // 임시로 Stack Widget Slider 모양만 만들어 놓음
-                  // 설문 위젯 뒤에 무슨 내용의 위젯 넣을 건지??
-                  Container(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                          height: 10,
-                          width: 10,
-                          decoration: const BoxDecoration(
-                            color: Colors.deepPurple,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                          height: 10,
-                          width: 10,
-                          decoration: const BoxDecoration(
-                            color: Colors.grey,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                          height: 10,
-                          width: 10,
-                          decoration: const BoxDecoration(
-                            color: Colors.grey,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 15),
+
+                  const SizedBox(height: 10),
                   // 3. Recommended Spots
                   Container(
                     padding: const EdgeInsets.all(15),
