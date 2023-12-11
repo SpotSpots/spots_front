@@ -82,9 +82,9 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Nunito-Regular
+    - family: Nunito-Black
       fonts:
-        - asset: assets/Nunito-Regular.ttf
+        - asset: assets/Nunito-Black.ttf
   # fonts:
   #   - family: Schyler
   #     fonts:
