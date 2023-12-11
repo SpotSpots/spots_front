@@ -115,7 +115,6 @@ class _SearchPageState extends State<SearchPage> {
               const SizedBox(height: 20),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(15),
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
@@ -127,12 +126,31 @@ class _SearchPageState extends State<SearchPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Recent Searches",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(15,15,0,0),
+                        child: const Text(
+                          "Recent Searches",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                       ),
                       const SizedBox(height: 5),
-                
+                      Expanded(
+                        child: ListView(
+                            scrollDirection: Axis.vertical,
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.search),
+                                title: const Text('310'),
+                                onTap: (){},
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.search),
+                                title: const Text('208'),
+                                onTap: (){},
+                              ),
+                            ]
+                        ),
+                      ),
                     ],
                   ),
                 ),
