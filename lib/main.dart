@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
+          fontFamily: 'Nunito-Black',
           colorScheme: ColorScheme.fromSeed(seedColor: Color(0xff8EC3EE)),
           //primarySwatch: Colors.deepPurple,
           useMaterial3: true,
