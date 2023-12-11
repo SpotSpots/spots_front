@@ -37,6 +37,8 @@ class _TabControlPageState extends State<TabControlPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool showFab = MediaQuery.of(context).viewInsets.bottom != 0;
+
     return WillPopScope(
       onWillPop: () async {
         final isFirstRouteInCurrentTab =
@@ -63,7 +65,10 @@ class _TabControlPageState extends State<TabControlPage> {
           onSelectTab: _selectTab,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: ExploreButton(),
+        floatingActionButton:
+        Visibility(
+          visible: !showFab, child: ExploreButton()
+        ),
       ),
     );
   }

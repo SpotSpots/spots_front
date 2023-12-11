@@ -44,7 +44,8 @@ class CafeService {
 
   Future<List<Cafe>> getCafesBySearchKeyword(String searchKeyword) async {
     QuerySnapshot<Map<String, dynamic>> querySnapshot =
-    await _collectionReference.where('name', isEqualTo: searchKeyword).get();
+    await _collectionReference.where('name', isGreaterThanOrEqualTo: searchKeyword)
+        .where('name', isLessThanOrEqualTo: '$searchKeyword\uf8ff').get();
     List<Cafe> cafes = [];
     for (var doc in querySnapshot.docs) {
       Cafe cafe = Cafe.fromQuerySnapshot(doc);
