@@ -3,9 +3,9 @@ import 'fab_with_icons.dart';
 import 'layout.dart';
 
 class ExploreButton extends StatelessWidget {
-  ExploreButton({super.key});
+  ExploreButton({Key? key}) : super(key: key);
 
-  final icons = [ Icons.school, Icons.local_cafe, Icons.library_books, Icons.bedroom_baby];
+  final icons = [Icons.school, Icons.local_cafe, Icons.cast_for_education, Icons.book, Icons.bed];
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +16,8 @@ class ExploreButton extends StatelessWidget {
           position: Offset(offset.dx, offset.dy - icons.length * 35.0),
           child: FabWithIcons(
             icons: icons,
-            onIconTapped: (int value) {
-              print("ontapped");
+            onIconTapped: (int index) {
+              print("Icon tapped: ${icons[index]}");
             },
           ),
         );
