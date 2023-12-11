@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        fontFamily: 'Nunito-Black',
+        fontFamily: 'Nunito-Regular',
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xff8EC3EE)),
         //primarySwatch: Colors.deepPurple,
         useMaterial3: true,
