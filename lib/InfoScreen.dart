@@ -299,6 +299,7 @@ class _InfoScreenState extends State<InfoScreen> {
       if (user != null) {
         // 현재 로그인한 사용자의 ID 가져오기
         String? userId = getCurrentUserId();
+        print("**** userid **** " + userId.toString());
 
         // Firestore에서 해당 사용자의 정보를 가져옵니다.
         DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
@@ -309,15 +310,34 @@ class _InfoScreenState extends State<InfoScreen> {
         if (userSnapshot.exists) {
           // userFavorite 필드를 확인하여 현재 카페가 포함되어 있는지 확인합니다.
           List<dynamic> userFavorites = userSnapshot['userFavorite'];
-          setState(() {
-            _isFavorite = userFavorites.contains('cafe/${widget.cafeInfo}');
-          });
+
+          // 1. cafeInfo로 cafe collection을 검색
+          QuerySnapshot cafeQuery = await FirebaseFirestore.instance
+              .collection('cafe')
+              .where('name', isEqualTo: widget.cafeInfo)
+              .get();
+
+          if (cafeQuery.docs.isNotEmpty) {
+            // 2. uid 검색 결과 나온 document의 하위 필드인 userFavorite에 cafeInfo로 검색한 cafe를 reference 하도록 설정
+            DocumentReference cafeReference = cafeQuery.docs.first.reference;
+
+            // Check if the current cafeInfo is in the user's favorites
+            bool isFavorite = userFavorites.contains(cafeReference);
+            print("**** isFavorite **** " + isFavorite.toString());
+            print("**** widget.cafeInfo **** " + widget.cafeInfo);
+
+            // Toggle the favorite state
+            setState(() {
+              _isFavorite = isFavorite;
+            });
+          }
         }
       }
     } catch (error) {
       print('Error checking favorite status: $error');
     }
   }
+
 
   Future<void> _toggleFavorite() async {
     try {
@@ -420,24 +440,11 @@ class _InfoScreenState extends State<InfoScreen> {
                         child: IconButton(
                           icon: Icon(
                             _isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: _isFavorite ? Colors.red : Colors.grey,
+                            color: _isFavorite ? Colors.red : Colors.grey, size: 20,
                           ),
                           onPressed: () {
                             _toggleFavorite();
                           },
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                        child: IconButton(
-                          icon: Icon(Icons.more_horiz, color: Colors.grey),
-                          onPressed: () {},
                         ),
                       ),
                     ],
