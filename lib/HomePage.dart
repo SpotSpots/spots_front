@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'CafeService.dart';
 import 'SearchPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,7 +18,10 @@ class _HomePageState extends State<HomePage> {
   String spotName = '';
   String spotDetail = '';
 
+  String category = 'cafe';
+
   int _current = 0;
+  int _selectedCategory = 0;
 
   @override
   void initState(){
@@ -37,34 +41,6 @@ class _HomePageState extends State<HomePage> {
       print('Error : $error');
     }
   }
-
-  Future<void> fetchSpotsByCategory(String category) async {
-    final CollectionReference _cafe = FirebaseFirestore.instance.collection(
-        'cafe');
-
-    try {
-      QuerySnapshot cafeSnapshot = await _cafe.where(
-          'category', isEqualTo: category).get();
-
-      if (cafeSnapshot.docs.isNotEmpty) {
-        // cafeSnapshot.docs에는 category가 'cafe'인 문서들이 들어있습니다.
-        // 여기에서 필요한 작업을 수행하면 됩니다.
-        for (QueryDocumentSnapshot documentSnapshot in cafeSnapshot.docs) {
-          // documentSnapshot을 이용하여 각 문서의 데이터에 접근할 수 있습니다.
-          spotName = documentSnapshot['name'];
-          spotDetail = documentSnapshot['detail'];
-          // 추가로 필요한 작업 수행
-        }
-      } else {
-        // 해당 카테고리의 데이터가 없을 경우 처리
-        print('No cafes found in the selected category');
-      }
-    } catch (error) {
-      print('Error: $error');
-    }
-  }
-
-
 
 
   @override
@@ -341,185 +317,170 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.deepPurple,
+                                  backgroundColor: _selectedCategory == 0? Colors.deepPurple : Colors.blue[50],
                                   minimumSize: Size.zero,
                                   padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
                                 onPressed: () {
-                                  fetchSpotsByCategory('cafe');
+                                  setState(() {
+                                    category = 'cafe';
+                                    _selectedCategory = 0;
+                                  });
                                 },
-                                child: const Text('Cafes', style: TextStyle(color: Colors.white),),
+                                child: Text('Cafes', style: TextStyle(color: _selectedCategory == 0? Colors.white: Colors.blue[600]),),
                               ),
                               const SizedBox(width: 10),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: _selectedCategory == 1? Colors.deepPurple : Colors.blue[50],
                                   minimumSize: Size.zero,
                                   padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
                                 onPressed: () {
-                                  fetchSpotsByCategory('studyspot');
+                                  setState(() {
+                                    category = 'studyspot';
+                                    _selectedCategory = 1;
+                                  });
                                 },
-                                child: const Text('Study Spots'),
+                                child: Text('Study Spots', style: TextStyle(color: _selectedCategory == 1? Colors.white: Colors.blue[600]),),
                               ),
                               const SizedBox(width: 10),
-                              // ElevatedButton(
-                              //   style: ElevatedButton.styleFrom(
-                              //     minimumSize: Size.zero,
-                              //     padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
-                              //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              //   ),
-                              //   onPressed: () {},
-                              //   child: const Text('Study Centers'),
-                              // ),
-                              // const SizedBox(width: 10),
-                              // ElevatedButton(
-                              //   style: ElevatedButton.styleFrom(
-                              //     minimumSize: Size.zero,
-                              //     padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
-                              //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              //   ),
-                              //   onPressed: () {},
-                              //   child: const Text('Outdoors'),
-                              // ),
-                              // const SizedBox(width: 10),
                             ],
                           ),
                         ),
                         const SizedBox(height: 10),
 
                         // 3-3. 장소 카드 뷰
-                    Container(
-                      height: 370,
-                      child: StreamBuilder(
-                        stream: _cafe.snapshots(),
-                        builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-                          if (streamSnapshot.hasData) {
-                            return GridView.builder(
-                              shrinkWrap: true,
-                              itemCount: streamSnapshot.data!.docs.length,
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 1,
-                                mainAxisSpacing: 10,
-                                crossAxisSpacing: 5,
-                              ),
-                              itemBuilder: (context, index) {
-                                final DocumentSnapshot documentSnapshot = streamSnapshot.data!
-                                    .docs[index];
-                                return GestureDetector(
-                                  onTap: () {
-                                    print('카페 이름을 resultPage로 전달하기');
-                                  },
-                                  child:
-                                  Stack(
-                                    children: [
-                                      // 이미지
-                                      Container(
-                                        margin: EdgeInsets.all(5),
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(10),
-                                            boxShadow: [BoxShadow(
-                                                color: Colors.grey.withOpacity(0.7),
-                                                spreadRadius: 0,
-                                                blurRadius: 5.0,
-                                                offset: Offset(0, 5)
-                                            )
-                                            ],
-                                            image: DecorationImage(
-                                                fit: BoxFit.cover,
-                                                image: NetworkImage(
-                                                    documentSnapshot['image'])
-                                            )
-                                        ),
-                                      ),
 
-                                      // 별점 정보 - 1. 검은색 깃발 이미지
-                                      const Positioned(
-                                        top: 17,
-                                        child: Image(image: AssetImage('assets/starMark.png'), width: 60, height: 30,),
-                                      ),
-
-                                      // 별점 정보 - 2. 별 이미지
-                                      const Positioned(
-                                        top: 25,
-                                        left: 4,
-                                        child: const Image(image: AssetImage('assets/star.png'),),
-                                      ),
-
-                                      // 별점 정보 - 3. 별점 text
-                                      Positioned(
-                                        top: 25,
-                                        left: 20,
-                                        child: Text(documentSnapshot['rating'], style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),)
-                                      ),
-
-                                      //하얀색 컨테이너
-                                      Align(
-                                        alignment: Alignment.bottomCenter,
-                                        child: Container(
-                                          alignment: Alignment.bottomLeft,
-                                          height: 50,
-                                          margin: EdgeInsets.all(5),
-                                          decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.only(
-                                                bottomRight: Radius.circular(10),
-                                                bottomLeft: Radius.circular(10),
-                                              ),
-                                              color: Colors.white,
-                                              boxShadow: [BoxShadow(
-                                                  color: Colors.grey.withOpacity(0.7),
-                                                  spreadRadius: 0,
-                                                  blurRadius: 5.0,
-                                                  offset: Offset(0, 5)
-                                              )
-                                              ]
-                                          ),
-                                          child: Container( // 이름, 거리
-                                            margin: const EdgeInsets.only(left: 10),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                                              children: [
-                                                Text(
-                                                  documentSnapshot['name'],
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.black,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  documentSnapshot['detail'],
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ),
-                                                  maxLines: 1,
+                        SizedBox(
+                          height: 370,
+                          child: FutureBuilder(
+                            future: CafeService().getCafesByCategory(category),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                List<Cafe> cafes = snapshot.data!;
+                                return GridView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: cafes.length,
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 1,
+                                    mainAxisSpacing: 10,
+                                    crossAxisSpacing: 5,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final Cafe cafe = cafes[index];
+                                    return GestureDetector(
+                                      onTap: () {
+                                        print('카페 이름을 resultPage로 전달하기');
+                                      },
+                                      child:
+                                      Stack(
+                                        children: [
+                                          // 이미지
+                                          Container(
+                                            margin: EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(20),
+                                                boxShadow: [BoxShadow(
+                                                    color: Colors.grey.withOpacity(0.7),
+                                                    spreadRadius: 0,
+                                                    blurRadius: 5.0,
+                                                    offset: Offset(0, 5)
                                                 )
-                                              ],
+                                                ],
+                                                image: DecorationImage(
+                                                    fit: BoxFit.cover,
+                                                    image: NetworkImage(
+                                                        cafe.image!)
+                                                )
                                             ),
                                           ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          }
-                          else {
-                            return const Center(child: SizedBox(
-                              height: 50,
-                              width: 50,
-                              child: CircularProgressIndicator(color: Colors.blue,),
-                            ));
-                          }
-                        },
-                      ),
-                    ),
 
+                                          // 별점 정보 - 1. 검은색 깃발 이미지
+                                          const Positioned(
+                                            top: 17,
+                                            child: Image(image: AssetImage('assets/starMark.png'), width: 60, height: 30,),
+                                          ),
+
+                                          // 별점 정보 - 2. 별 이미지
+                                          const Positioned(
+                                            top: 25,
+                                            left: 4,
+                                            child: const Image(image: AssetImage('assets/star.png'),),
+                                          ),
+
+                                          // 별점 정보 - 3. 별점 text
+                                          Positioned(
+                                              top: 25,
+                                              left: 20,
+                                              child: Text(cafe.rating!, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),)
+                                          ),
+
+                                          //하얀색 컨테이너
+                                          Align(
+                                            alignment: Alignment.bottomCenter,
+                                            child: Container(
+                                              alignment: Alignment.bottomLeft,
+                                              height: 50,
+                                              margin: EdgeInsets.all(5),
+                                              decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.only(
+                                                      bottomRight: Radius.circular(20)),
+                                                  color: Colors.white,
+                                                  boxShadow: [BoxShadow(
+                                                      color: Colors.grey.withOpacity(0.7),
+                                                      spreadRadius: 0,
+                                                      blurRadius: 5.0,
+                                                      offset: Offset(0, 5)
+                                                  )
+                                                  ]
+                                              ),
+                                              child: Container( // 이름, 거리
+                                                margin: const EdgeInsets.only(left: 10),
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                  children: [
+                                                    Text(
+                                                      cafe.name!,
+                                                      style: const TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.black,
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      cafe.detail!,
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                      maxLines: 1,
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                              else {
+                                return const Center(child: SizedBox(
+                                  height: 50,
+                                  width: 50,
+                                  child: CircularProgressIndicator(color: Colors.blue,),
+                                ));
+                              }
+                            },
+                          ),
+                        ),
 
                       ],
                     ),
