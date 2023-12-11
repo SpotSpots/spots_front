@@ -127,6 +127,7 @@ class _ResultPageState extends State<ResultPage> {
 
 
   Widget build(BuildContext context) {
+    String searchKeyword = widget.searchKeyword;
     return Scaffold(
       backgroundColor: Color(0xffE9E9E9),
       appBar: AppBar(
@@ -180,7 +181,8 @@ class _ResultPageState extends State<ResultPage> {
                     Icon(Icons.search),
                     SizedBox(width: 10),
                     Expanded(
-                      child: TextField(
+                      child: TextFormField(
+                        initialValue: searchKeyword,
                         style: TextStyle(fontSize:15),
                         decoration: InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -189,9 +191,13 @@ class _ResultPageState extends State<ResultPage> {
                             hintStyle: TextStyle(color: Colors.grey)
                         ),
                         onChanged: (value){
-                          setState(() {
-
-                          });
+                          searchKeyword = value;
+                        },
+                        onFieldSubmitted: (value) {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) => ResultPage(searchKeyword: searchKeyword, cafeQuery: CafeService().getCafesBySearchKeyword(searchKeyword))));
                         },
                       ),
                     ),

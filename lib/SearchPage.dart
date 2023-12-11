@@ -74,6 +74,12 @@ class _SearchPageState extends State<SearchPage> {
                             searchKeyword = value;
                           });
                         },
+                        onSubmitted: (value) {
+                          Navigator.push(context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ResultPage(searchKeyword: searchKeyword, cafeQuery: CafeService().getCafesBySearchKeyword(searchKeyword))));
+                        },
                       ),
                     ),
                   ],
