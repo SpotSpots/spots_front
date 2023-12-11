@@ -407,7 +407,7 @@ class _InfoScreenState extends State<InfoScreen> {
                 // Image.asset('assets/${_cafeData?.image}', width: double.infinity, height: 200, fit: BoxFit.cover),
                 Image.asset('assets/cafe1.png'),
                 Positioned(
-                  top: 16,
+                  top: 35,
                   left: 16,
                   child: Container(
                     width: 36,
@@ -426,7 +426,7 @@ class _InfoScreenState extends State<InfoScreen> {
                   ),
                 ),
                 Positioned(
-                  top: 16,
+                  top: 35,
                   right: 16,
                   child: Row(
                     children: [
