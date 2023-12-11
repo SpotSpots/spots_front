@@ -37,19 +37,34 @@ class _TabControlPageState extends State<TabControlPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          _buildOffstageNavigator(TabItem.home),
-          _buildOffstageNavigator(TabItem.saved),
-        ],
+    return WillPopScope(
+      onWillPop: () async {
+        final isFirstRouteInCurrentTab =
+        !await _navigatorKeys[_currentTab]!.currentState!.maybePop();
+
+        if (isFirstRouteInCurrentTab) {
+          if (_currentTab != TabItem.home) {
+            _selectTab(TabItem.home);
+            return false;
+          }
+        }
+
+        return isFirstRouteInCurrentTab;
+      },
+      child: Scaffold(
+        body: Stack(
+          children: <Widget>[
+            _buildOffstageNavigator(TabItem.home),
+            _buildOffstageNavigator(TabItem.saved),
+          ],
+        ),
+        bottomNavigationBar: CustomBottomNavigationBar(
+          currentTab: _currentTab,
+          onSelectTab: _selectTab,
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: ExploreButton(),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentTab: _currentTab,
-        onSelectTab: _selectTab,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: ExploreButton(),
     );
   }
 
