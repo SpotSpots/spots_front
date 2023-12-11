@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ResultPage.dart';
+import 'CafeService.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -64,7 +65,10 @@ class _SearchPageState extends State<SearchPage> {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ResultPage()));
+                Navigator.push(context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            ResultPage(searchKeyword: 'Current Location', cafeQuery: CafeService().getAllCafes()),));
               },
               child: const Row(
                 children: [
