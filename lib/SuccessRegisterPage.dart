@@ -21,14 +21,20 @@ class SuccessRegisterPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(
-                height: 400,
+                height: 550,
               ),
               ElevatedButton(
-                  style : ElevatedButton.styleFrom(minimumSize: Size(60, 30)),
-                  onPressed: (){
-                    Navigator.popUntil(context, (route) => route.isFirst);
-                  },
-                  child: const Text('Find Your Spots')
+                style: ElevatedButton.styleFrom(
+                    elevation: 20,
+                    shadowColor: Colors.grey.withOpacity(0.5),
+                    backgroundColor: Color(0xff478FCA),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(300, 45)
+                ),
+                onPressed: () {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                },
+                child: const Text('Find Your Spots'),
               ),
             ],
           ),
