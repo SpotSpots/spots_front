@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:spotsfront/InfoScreen.dart';
 import 'CafeService.dart';
+import 'RecentSearches.dart';
 
 class ResultPage extends StatefulWidget {
   const ResultPage(
@@ -194,6 +196,7 @@ class _ResultPageState extends State<ResultPage> {
                           searchKeyword = value;
                         },
                         onFieldSubmitted: (value) {
+                          context.read<RecentSearches>().addSearchKeyword(searchKeyword);
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(

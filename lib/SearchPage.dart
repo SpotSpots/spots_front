@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:spotsfront/RecentSearches.dart';
 import 'ResultPage.dart';
 import 'CafeService.dart';
 
@@ -75,6 +77,7 @@ class _SearchPageState extends State<SearchPage> {
                           });
                         },
                         onSubmitted: (value) {
+                          context.read<RecentSearches>().addSearchKeyword(searchKeyword);
                           Navigator.push(context,
                               MaterialPageRoute(
                                 builder: (context) =>
@@ -135,23 +138,24 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                       const SizedBox(height: 5),
                       Expanded(
-                        child: ListView(
-                            scrollDirection: Axis.vertical,
-                            children: [
-                              ListTile(
-                                leading: const Icon(Icons.search),
-                                title: const Text('310'),
-                                onTap: (){},
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.search),
-                                title: const Text('208'),
-                                onTap: (){},
-                              ),
-                            ]
-                        ),
-                      ),
-                    ],
+                        child:  ListView.builder(
+                            itemCount: context.watch<RecentSearches>().searchList.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                  leading: const Icon(Icons.search),
+                                  title: Text(context.watch<RecentSearches>().searchList[index]),
+                                  onTap: (){
+                                    Navigator.push(context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ResultPage(searchKeyword: searchKeyword,
+                                                    cafeQuery: CafeService().getCafesBySearchKeyword(
+                                                        context.read<RecentSearches>().searchList[index]))));
+                                  },
+                              );
+                            },
+                        )
+                      )],
                   ),
                 ),
               ),
