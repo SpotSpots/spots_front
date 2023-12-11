@@ -23,10 +23,16 @@ class LogoPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(
-                  height: 400,
+                  height: 550,
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(minimumSize: const Size(60, 30)),
+                  style: ElevatedButton.styleFrom(
+                      elevation: 20,
+                      shadowColor: Colors.grey.withOpacity(0.5),
+                      backgroundColor: Color(0xff478FCA),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(335, 45)
+                  ),
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
                   },
@@ -40,7 +46,7 @@ class LogoPage extends StatelessWidget {
                   children: [
                     Text('Already have an Account?'),
                     TextButton(
-                      child: Text('Sign In'),
+                      child: Text('Sign In', style: TextStyle(decoration: TextDecoration.underline)),
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
                       },
