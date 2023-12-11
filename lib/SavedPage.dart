@@ -54,6 +54,18 @@ class _SavedPageState extends State<SavedPage> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         title: Text('Saved', style: TextStyle(fontWeight: FontWeight.bold)),
+        leading: IconButton(
+            icon: Icon(Icons.navigate_before, size: 28),
+            onPressed: () {}
+        ),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.more_horiz),
+              onPressed: () {
+                print('clicked');
+              }
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(20.0),
           child: Container(
