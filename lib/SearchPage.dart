@@ -10,6 +10,8 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  String searchKeyword = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,75 +35,104 @@ class _SearchPageState extends State<SearchPage> {
           ],
         ),
       body: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Column(
-          children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                minimumSize: Size.zero,
-                padding: const EdgeInsets.fromLTRB(10, 15, 0, 15),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+        child: Expanded(
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                width: MediaQuery.of(context).size.width,
+                height: 54,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      blurRadius: 20,
+                      offset: Offset(0, 11), // changes position of shadow
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(25),
+                  color: Colors.white,
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.search),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        autofocus: true,
+                        style: TextStyle(fontSize:15),
+                        decoration: InputDecoration(
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            border: InputBorder. none,
+                            hintText: 'Search cafe, library, study centers...',
+                            hintStyle: TextStyle(color: Colors.grey)
+                        ),
+                        onChanged: (value){
+                          setState(() {
+                            searchKeyword = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              onPressed: () {
-              },
-              child: const Row(
-                children: [
-                  Icon(Icons.search),
-                  SizedBox(width: 10),
-                  Text(
-                    'Search cafe, library, study centers...',
-                    style: TextStyle(color: Colors.grey),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 20,
+                  shadowColor: Colors.grey.withOpacity(0.5),
+                  backgroundColor: Colors.white,
+                  minimumSize: Size.zero,
+                  padding: const EdgeInsets.fromLTRB(10, 15, 0, 15),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ResultPage(searchKeyword: 'Current Location', cafeQuery: CafeService().getAllCafes()),));
+                },
+                child: const Row(
+                  children: [
+                    Icon(Icons.location_on),
+                    SizedBox(width: 10),
+                    Text(
+                      'Current Location',
+                      style: TextStyle(color: Colors.grey, fontSize: 15),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                minimumSize: Size.zero,
-                padding: const EdgeInsets.fromLTRB(10, 15, 0, 15),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            ResultPage(searchKeyword: 'Current Location', cafeQuery: CafeService().getAllCafes()),));
-              },
-              child: const Row(
-                children: [
-                  Icon(Icons.location_on),
-                  SizedBox(width: 10),
-                  Text(
-                    'Current Location',
-                    style: TextStyle(color: Colors.grey),
+                  color: Colors.white,
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(15),
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: Colors.white,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Recent Searches",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Recent Searches",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 5),
+                
+                    ],
                   ),
-                  const SizedBox(height: 5),
-
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
