@@ -362,7 +362,10 @@ class _ResultPageState extends State<ResultPage> {
                                                 ElevatedButton( // checkin 버튼 나중에 구현
                                                     style : ElevatedButton.styleFrom(
                                                         minimumSize: Size(60, 30)),
-                                                    onPressed: (){}, child: Text('Check In')),
+                                                    onPressed: (){
+                                                      Navigator.push(context, MaterialPageRoute(builder: (context) => InfoScreen(cafe.name!)));
+                                                    }, child: Text('See details')
+                                                ),
                                               ],
                                             ),
                                           ),
