@@ -102,7 +102,7 @@ class _RegisterFormState extends State<RegisterForm> {
                             'userName': userName,
                             'email': email,
                             // Add userFavorite as an empty field
-                            'userFavorite': {},
+                            'userFavorite': [],
                           });
 
                           if (newUser.user != null) {

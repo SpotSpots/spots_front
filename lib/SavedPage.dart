@@ -10,8 +10,31 @@ class SavedPage extends StatefulWidget {
 }
 
 class _SavedPageState extends State<SavedPage> {
-
   String uid = FirebaseAuth.instance.currentUser!.uid;
+  List<DocumentReference> userFavorites = [];
+
+  @override
+  void initState() {
+    print("init state");
+    super.initState();
+    // SavedPage에 들어올 때 초기 데이터 로드
+    loadUserFavorites();
+  }
+
+  // 초기 데이터 로드
+  Future<void> loadUserFavorites() async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('user').doc(uid).get();
+      if (snapshot.exists) {
+        List<DocumentReference> favorites = List<DocumentReference>.from(snapshot['userFavorite']);
+        setState(() {
+          userFavorites = favorites;
+        });
+      }
+    } catch (e) {
+      print('Error loading favorites: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +42,11 @@ class _SavedPageState extends State<SavedPage> {
       backgroundColor: Color(0xffE9E9E9),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.transparent, // 고정 색상 지정
-        // backgroundColor: Color(0xffE9E9E9),
-        title: Text('Saved', style: TextStyle(fontWeight: FontWeight.bold),),
+        backgroundColor: Colors.transparent,
+        title: Text('Saved', style: TextStyle(fontWeight: FontWeight.bold)),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(20.0),
           child: Container(
-            //padding: EdgeInsets.all(8.0),
             alignment: Alignment.center,
             child: Text(
               'See what\'s your favorite spots!',
@@ -34,11 +55,8 @@ class _SavedPageState extends State<SavedPage> {
           ),
         ),
       ),
-
-
       body: Column(
         children: [
-          // 1. Cafe Spots
           const SizedBox(height: 20,),
           const Align(
             alignment: Alignment.centerLeft,
@@ -51,36 +69,62 @@ class _SavedPageState extends State<SavedPage> {
             ),
           ),
           SizedBox(height: 10,),
-
-
-          FutureBuilder<QuerySnapshot>(
-            future: FirebaseFirestore.instance.collection('user').doc(uid).collection('userFavorite').get(),
+          FutureBuilder<DocumentSnapshot>(
+            future: FirebaseFirestore.instance.collection('user').doc(uid).get(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
-                // cafe만 가져오기
-                final cafeCards = snapshot.data!.docs
-                    .where((document) => document['category'] == 'cafe')
-                    .map<Widget>((document) {
-                  final name = document['name'];
-                  return buildCard('Cafe Spots', name);
-                }).toList();
+                final userDocument = snapshot.data;
+                if (userDocument != null) {
+                  final userFavoriteReferences = List<DocumentReference>.from(userDocument['userFavorite']);
 
-                return Column(
-                  children: [
-                    SizedBox(
-                      height: 200,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        children: cafeCards,
-                      ),
-                    ),
-                  ],
-                );
+                  if (userFavoriteReferences.isNotEmpty) {
+                    final userFavoriteDataFutures = userFavoriteReferences.map((reference) => reference.get());
+                    return FutureBuilder<List<DocumentSnapshot>>(
+                      future: Future.wait(userFavoriteDataFutures),
+                      builder: (context, userFavoriteSnapshots) {
+                        if (userFavoriteSnapshots.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (userFavoriteSnapshots.hasError) {
+                          return Text('Error: ${userFavoriteSnapshots.error}');
+                        } else {
+                          final userFavoriteData = userFavoriteSnapshots.data;
+                          if (userFavoriteData != null) {
+                            final cafeCards = userFavoriteData
+                                .where((favoriteData) => favoriteData['category'] == 'cafe')
+                                .map<Widget>((favoriteData) {
+                              final name = favoriteData['name'];
+                              final cafeReference = favoriteData.reference;
+
+                              return buildCard('Cafe Spots', name, () {
+                                removeFromFavorites('cafe', name, cafeReference);
+                              });
+                            }).toList();
+
+                            return Column(
+                              children: [
+                                SizedBox(
+                                  height: 200,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    children: cafeCards,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                        }
+                        return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
+                      },
+                    );
+                  }
+                }
+
+                return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
               }
             },
           ),
@@ -97,34 +141,62 @@ class _SavedPageState extends State<SavedPage> {
             ),
           ),
           SizedBox(height: 10,),
-          FutureBuilder<QuerySnapshot>(
-            future: FirebaseFirestore.instance.collection('user').doc(uid).collection('userFavorite').get(),
+          FutureBuilder<DocumentSnapshot>(
+            future: FirebaseFirestore.instance.collection('user').doc(uid).get(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
-                // Firebase에서 데이터 가져오기 성공
-                final studyCards = snapshot.data!.docs
-                    .where((document) => document['category'] == 'studyspot')
-                    .map<Widget>((document) {
-                  final name = document['name'];
-                  return buildCard('Study Spots', name);
-                }).toList();
+                final userDocument = snapshot.data;
+                if (userDocument != null) {
+                  final userFavoriteReferences = List<DocumentReference>.from(userDocument['userFavorite']);
 
-                return Column(
-                  children: [
-                    SizedBox(
-                      height: 200,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        children: studyCards,
-                      ),
-                    ),
-                  ],
-                );
+                  if (userFavoriteReferences.isNotEmpty) {
+                    final userFavoriteDataFutures = userFavoriteReferences.map((reference) => reference.get());
+                    return FutureBuilder<List<DocumentSnapshot>>(
+                      future: Future.wait(userFavoriteDataFutures),
+                      builder: (context, userFavoriteSnapshots) {
+                        if (userFavoriteSnapshots.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (userFavoriteSnapshots.hasError) {
+                          return Text('Error: ${userFavoriteSnapshots.error}');
+                        } else {
+                          final userFavoriteData = userFavoriteSnapshots.data;
+                          if (userFavoriteData != null) {
+                            final studyCards = userFavoriteData
+                                .where((favoriteData) => favoriteData['category'] == 'studyspot')
+                                .map<Widget>((favoriteData) {
+                              final name = favoriteData['name'];
+
+                              final cafeReference = favoriteData.reference;
+                              return buildCard('Study Spots', name, () {
+                                removeFromFavorites('studyspot', name, cafeReference);
+                              });
+                            }).toList();
+
+                            return Column(
+                              children: [
+                                SizedBox(
+                                  height: 200,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    children: studyCards,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                        }
+                        return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
+                      },
+                    );
+                  }
+                }
+
+                return Container(); // 사용자 문서 또는 userFavorite이 없을 경우 빈 컨테이너 반환
               }
             },
           ),
@@ -132,9 +204,54 @@ class _SavedPageState extends State<SavedPage> {
       ),
     );
   }
+
+  Future<void> removeFromFavorites(String category, String name, DocumentReference cafeReference) async {
+    print('removeFromFavorites function called');
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+
+      // Firestore에서 사용자 즐겨찾기 목록에서 카페 참조 제거
+      await FirebaseFirestore.instance.collection('user').doc(uid).update({
+        'userFavorite': FieldValue.arrayRemove([cafeReference]),
+      });
+
+      print('Firestore에서 카페가 즐겨찾기 목록에서 제거되었습니다.');
+
+      // SavedPage로 돌아가기
+      //Navigator.pop(context);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SavedPage()));
+
+    } catch (e) {
+      print('즐겨찾기에서 제거 중 오류 발생: $e');
+    }
+  }
+
+
+// Future<void> removeFromFavorites(String category, String name, DocumentReference cafeReference) async {
+  //   print('removeFromFavorites function called');
+  //   try {
+  //     String uid = FirebaseAuth.instance.currentUser!.uid;
+  //
+  //     // Remove cafe reference from userFavorite list in Firestore
+  //     await FirebaseFirestore.instance.collection('user').doc(uid).update({
+  //       'userFavorite': FieldValue.arrayRemove([cafeReference]),
+  //     });
+  //
+  //     print('Cafe removed from favorites in Firestore.');
+  //
+  //     // Update the UI using setState
+  //     setState(() {
+  //       // You may want to update the state here, for example, by removing the item from a list
+  //       // userFavorites.cafeFavorites.remove(cafeReference);
+  //     });
+  //
+  //   } catch (e) {
+  //     print('Error removing from favorites: $e');
+  //   }
+  // }
 }
 
-Widget buildCard(String category, String name) {
+Widget buildCard(String category, String name, VoidCallback onTap) {
   return Container(
     width: 150,
     height: 210,
@@ -175,10 +292,7 @@ Widget buildCard(String category, String name) {
                 ),
                 child: IconButton(
                   icon: Icon(Icons.favorite, color: Colors.pink),
-                  onPressed: () {
-                    print('heart button clicked');
-                    removeFromFavorites(category, name);
-                  },
+                  onPressed: onTap,
                   iconSize: 16,
                 ),
               ),
@@ -192,35 +306,24 @@ Widget buildCard(String category, String name) {
       ],
     ),
   );
+
 }
 
-Future<void> removeFromFavorites(String category, String name) async {
-  print('removeFromFavorites function called');
-  try {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    print(uid);
-    QuerySnapshot userFavoritesSnapshot = await FirebaseFirestore.instance
-        .collection('user')
-        .doc(uid)
-        .collection('userFavorite')
-        .where('category', isEqualTo: category)
-        .where('name', isEqualTo: name)
-        .get();
+// Future<void> removeFromFavorites(String category, String name, DocumentReference cafeReference) async {
+//   print('removeFromFavorites function called');
+//   try {
+//     String uid = FirebaseAuth.instance.currentUser!.uid;
+//
+//     // Remove cafe reference from userFavorite list in Firestore
+//     await FirebaseFirestore.instance.collection('user').doc(uid).update({
+//       'userFavorite': FieldValue.arrayRemove([cafeReference]),
+//     });
+//
+//     print('Cafe removed from favorites in Firestore.');
+//
+//     // TODO: You may want to update the UI here by triggering a rebuild or updating state.
+//   } catch (e) {
+//     print('Error removing from favorites: $e');
+//   }
+// }
 
-    if (userFavoritesSnapshot.docs.isNotEmpty) {
-      print("in delete");
-      String docId = userFavoritesSnapshot.docs.first.id;
-      print(docId);
-      await FirebaseFirestore.instance
-          .collection('user')
-          .doc(uid)
-          .collection('userFavorite')
-          .doc(docId)
-          .delete();
-    } else {
-      print('No document found for deletion');
-    }
-  } catch (e) {
-    print('Error removing from favorites: $e');
-  }
-}
