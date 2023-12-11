@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'InfoScreen.dart';
-
 class SavedPage extends StatefulWidget {
   const SavedPage({Key? key}) : super(key: key);
 
@@ -51,23 +49,11 @@ class _SavedPageState extends State<SavedPage> {
   Widget build(BuildContext context) {
     //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SavedPage()));
     return Scaffold(
-      backgroundColor: Color(0xffE9E9E9),
+      backgroundColor: const Color(0xffD5EAF7),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xffD5EAF7),
         title: Text('Saved', style: TextStyle(fontWeight: FontWeight.bold)),
-        leading: IconButton(
-            icon: Icon(Icons.navigate_before, size: 28),
-            onPressed: () {}
-        ),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.more_horiz),
-              onPressed: () {
-                print('clicked');
-              }
-          ),
-        ],
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(20.0),
           child: Container(
@@ -123,34 +109,22 @@ class _SavedPageState extends State<SavedPage> {
                                   .map<Widget>((favoriteData) {
                                 final name = favoriteData['name'];
                                 final cafeReference = favoriteData.reference;
-                                final cafeImage = favoriteData.get('image'); // 이미지 URL을 가져옴
-                                print("checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk" + cafeImage);
 
-                                return buildCard('Cafe Spots', name, cafeImage, () {
+                                return buildCard('Cafe Spots', name, () {
                                   removeFromFavorites('cafe', name, cafeReference);
-                                }, context);
+                                });
                               }).toList();
 
                               return Column(
                                 children: [
                                   SizedBox(
                                     height: 200,
-                                    child: ListView.builder(
+                                    child: ListView(
                                       scrollDirection: Axis.horizontal,
                                       padding: EdgeInsets.symmetric(horizontal: 16),
-                                      // children: cafeCards,
-                                      itemCount: cafeCards.length,
-                                      itemBuilder: (BuildContext context, int index) {
-                                        return Row(
-                                          children: [
-                                            cafeCards[index],
-                                            SizedBox(width: 15), // 카드들 사이의 간격을 조절
-                                          ],
-                                        );
-                                      },
+                                      children: cafeCards,
                                     ),
                                   ),
-                                  SizedBox(width: 20),
                                 ],
                               );
                             }
@@ -206,31 +180,21 @@ class _SavedPageState extends State<SavedPage> {
                                   .where((favoriteData) => favoriteData['category'] == 'studyspot')
                                   .map<Widget>((favoriteData) {
                                 final name = favoriteData['name'];
+
                                 final cafeReference = favoriteData.reference;
-                                final cafeImage = favoriteData.get('image'); // 이미지 URL을 가져옴
-                                print("checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk" + cafeImage);
-                                return buildCard('Study Spots', name, cafeImage, () {
+                                return buildCard('Study Spots', name, () {
                                   removeFromFavorites('studyspot', name, cafeReference);
-                                }, context);
+                                });
                               }).toList();
 
                               return Column(
                                 children: [
                                   SizedBox(
                                     height: 200,
-                                    child: ListView.builder(
+                                    child: ListView(
                                       scrollDirection: Axis.horizontal,
                                       padding: EdgeInsets.symmetric(horizontal: 16),
-                                      //children: studyCards,
-                                      itemCount: studyCards.length,
-                                      itemBuilder: (BuildContext context, int index) {
-                                        return Row(
-                                          children: [
-                                            studyCards[index],
-                                            SizedBox(width: 15), // 카드들 사이의 간격을 조절
-                                          ],
-                                        );
-                                      },
+                                      children: studyCards,
                                     ),
                                   ),
                                 ],
@@ -299,7 +263,7 @@ class _SavedPageState extends State<SavedPage> {
   // }
 }
 
-Widget buildCard(String category, String name, String imageUrl, VoidCallback onTap, BuildContext context) {
+Widget buildCard(String category, String name, VoidCallback onTap) {
   return Container(
     width: 150,
     height: 210,
@@ -321,19 +285,9 @@ Widget buildCard(String category, String name, String imageUrl, VoidCallback onT
                 height: 150,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16.0),
-                  // child: Image.asset(
-                  //   'assets/cafe1.png',
-                  //   fit: BoxFit.fitHeight,
-                  // ),
-                  child: GestureDetector(
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => InfoScreen(name)));
-                    },
-                    child: Image( // 카페 이미지 : cafe/image
-                        fit: BoxFit.cover,
-                        image: NetworkImage(imageUrl),
-                        width: 380
-                    ),
+                  child: Image.asset(
+                    'assets/cafe1.png',
+                    fit: BoxFit.fitHeight,
                   ),
                 ),
               ),
