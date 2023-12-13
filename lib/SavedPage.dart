@@ -64,7 +64,7 @@ class _SavedPageState extends State<SavedPage> {
           IconButton(
               icon: Icon(Icons.more_horiz),
               onPressed: () {
-                print('clicked');
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SavedPage()));
               }
           ),
         ],
