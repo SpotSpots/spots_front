@@ -130,6 +130,8 @@ class _ResultPageState extends State<ResultPage> {
 
   Widget build(BuildContext context) {
     String searchKeyword = widget.searchKeyword;
+    Future<List<Cafe>> cafeQuery = widget.cafeQuery;
+
     return Scaffold(
       backgroundColor: Color(0xffE9E9E9),
       appBar: AppBar(
@@ -147,7 +149,7 @@ class _ResultPageState extends State<ResultPage> {
           IconButton(
               icon: Icon(Icons.more_horiz),
               onPressed: () {
-                print('clicked');
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ResultPage(searchKeyword: searchKeyword, cafeQuery: cafeQuery,)));
               }
           ),
         ],
