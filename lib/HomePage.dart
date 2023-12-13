@@ -573,12 +573,12 @@ class _HomePageState extends State<HomePage> {
     // });
 
     return Scaffold(
-      backgroundColor: const Color(0xffE9E9E9),
+      backgroundColor: const Color(0xffD5EAF7),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: AppBar(
           centerTitle: true,
-          backgroundColor: const Color(0xffE9E9E9),
+          backgroundColor: const Color(0xffD5EAF7),
           leadingWidth: 200,
           leading: Container(
             width: 200,
