@@ -29,10 +29,12 @@ class MyApp extends StatelessWidget {
       builder: (context, child) => MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
+          fontFamily: 'Nunito-Black',
           colorScheme: ColorScheme.fromSeed(seedColor: Color(0xff8EC3EE)),
           //primarySwatch: Colors.deepPurple,
           useMaterial3: true,
         ),
+
         home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
