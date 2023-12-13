@@ -133,10 +133,10 @@ class _ResultPageState extends State<ResultPage> {
     Future<List<Cafe>> cafeQuery = widget.cafeQuery;
 
     return Scaffold(
-      backgroundColor: Color(0xffE9E9E9),
+      backgroundColor: const Color(0xffD5EAF7),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Color(0xffE9E9E9),
+        backgroundColor: const Color(0xffD5EAF7),
         title: Text('Results', style: TextStyle(fontWeight: FontWeight.bold),),
         leading: IconButton(
             icon: Icon(Icons.navigate_before, size: 28),
@@ -378,16 +378,16 @@ class _ResultPageState extends State<ResultPage> {
                                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                             children: [
                                               SizedBox(width: 2),
-                                              Icon(Icons.wifi),
+                                              Icon(Icons.wifi, size: 15,),
                                               Text('Wi-fi'),
                                               SizedBox(width: 5),
-                                              Icon(Icons.videocam),
+                                              Icon(Icons.videocam, size: 15,),
                                               Text('Outlets'),
                                               SizedBox(width: 5),
-                                              Icon(Icons.volume_up),
+                                              Icon(Icons.volume_up, size: 15,),
                                               Text('Moderate Noise'),
                                               SizedBox(width: 8),
-                                              Text('+ ${cafe.amenNum!} More', style: TextStyle(color: Colors.grey),),
+                                              Text('+ ${cafe.amenNum!} More', style: TextStyle(color: Colors.grey, fontSize: 12),),
                                               SizedBox(width: 2),
                                             ],
                                           ),

@@ -51,10 +51,10 @@ class _SavedPageState extends State<SavedPage> {
   Widget build(BuildContext context) {
     //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SavedPage()));
     return Scaffold(
-      backgroundColor: Color(0xffE9E9E9),
+      backgroundColor: const Color(0xffD5EAF7),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xffD5EAF7),
         title: Text('Saved', style: TextStyle(fontWeight: FontWeight.bold)),
         leading: IconButton(
             icon: Icon(Icons.navigate_before, size: 28),
