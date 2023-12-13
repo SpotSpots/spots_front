@@ -339,6 +339,44 @@ class _InfoScreenState extends State<InfoScreen> {
   }
 
 
+  // Future<void> _toggleFavorite() async {
+  //   try {
+  //     User? user = getCurrentUser();
+  //     if (user != null) {
+  //       // 현재 로그인한 사용자의 ID 가져오기
+  //       String? userId = getCurrentUserId();
+  //
+  //       // Firestore에서 해당 사용자의 정보를 가져옵니다.
+  //       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+  //           .collection('user')
+  //           .doc(userId)
+  //           .get();
+  //
+  //       if (userSnapshot.exists) {
+  //         // userFavorite 필드를 업데이트하여 현재 카페를 추가 또는 제거합니다.
+  //         List<dynamic> userFavorites = userSnapshot['userFavorite'];
+  //         if (_isFavorite) {
+  //           userFavorites.remove('cafe/${widget.cafeInfo}');
+  //         } else {
+  //           userFavorites.add('cafe/${widget.cafeInfo}');
+  //         }
+  //
+  //         // 업데이트된 정보를 Firestore에 저장합니다.
+  //         await FirebaseFirestore.instance
+  //             .collection('user')
+  //             .doc(userId)
+  //             .update({'userFavorite': userFavorites});
+  //
+  //         setState(() {
+  //           _isFavorite = !_isFavorite;
+  //         });
+  //       }
+  //     }
+  //   } catch (error) {
+  //     print('Error toggling favorite status: $error');
+  //   }
+  // }
+
   Future<void> _toggleFavorite() async {
     try {
       User? user = getCurrentUser();
@@ -355,10 +393,16 @@ class _InfoScreenState extends State<InfoScreen> {
         if (userSnapshot.exists) {
           // userFavorite 필드를 업데이트하여 현재 카페를 추가 또는 제거합니다.
           List<dynamic> userFavorites = userSnapshot['userFavorite'];
+
+          // cafeInfo에 해당하는 카페 document 참조를 만듭니다.
+          DocumentReference cafeReference =
+          FirebaseFirestore.instance.collection('cafe').doc(widget.cafeInfo);
+
+          // 참조를 리스트에 추가하거나 제거합니다.
           if (_isFavorite) {
-            userFavorites.remove('cafe/${widget.cafeInfo}');
+            userFavorites.remove(cafeReference);
           } else {
-            userFavorites.add('cafe/${widget.cafeInfo}');
+            userFavorites.add(cafeReference);
           }
 
           // 업데이트된 정보를 Firestore에 저장합니다.
