@@ -85,23 +85,31 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(20),
           color: Colors.white,
         ),
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Seek the perfect",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
-            const Text(
+            Text(
               "work spot today!",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 25),
-            const Text(
-              "Swipe for Recommend Places!",
-              style: TextStyle(fontSize: 17),
+            SizedBox(height: 20),
+            Row(
+              children: [
+                Text(
+                  "Swipe for your ",
+                  style: TextStyle(fontSize: 17),
+                ),
+                Text(
+                  "Spots",
+                  style: TextStyle(fontSize: 22, color: Colors.blue),
+                ),
+              ],
             ),
-            const SizedBox(height: 10,),
+            SizedBox(height: 10,),
           ],
         ),
       ),
@@ -524,7 +532,6 @@ class _HomePageState extends State<HomePage> {
             onPageChanged: (index, reason){
               setState(() {
                 _current = index;
-                print('current는 $_current 입니다!!!!!!!!!!!!');
               });
             }
         ),
@@ -595,7 +602,7 @@ class _HomePageState extends State<HomePage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Container(
-                      width: 73,
+                      width: 70,
                       child: Text('$userName!',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                         overflow: TextOverflow.ellipsis,
