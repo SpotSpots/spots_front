@@ -302,7 +302,7 @@ class _SavedPageState extends State<SavedPage> {
 Widget buildCard(String category, String name, String imageUrl, VoidCallback onTap, BuildContext context) {
   return Container(
     width: 150,
-    height: 210,
+    height: 220,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -359,7 +359,7 @@ Widget buildCard(String category, String name, String imageUrl, VoidCallback onT
         ),
         Text(
           name,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
         ),
       ],
     ),
