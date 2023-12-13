@@ -54,6 +54,7 @@ class _TabControlPageState extends State<TabControlPage> {
         return isFirstRouteInCurrentTab;
       },
       child: Scaffold(
+        backgroundColor: const Color(0xffD5EAF7),
         body: Stack(
           children: <Widget>[
             _buildOffstageNavigator(TabItem.home),
